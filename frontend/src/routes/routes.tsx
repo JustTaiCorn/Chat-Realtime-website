@@ -1,27 +1,57 @@
 import type { ReactElement } from "react";
+import { useEffect, useState } from "react";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import SignUpPage from "../pages/SignUpPage";
+import MessagesPage from "../pages/MessagesPage";
 
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../zustands/useAuthStore";
-import MessagesPage from "../pages/MessagesPage.tsx";
 
 interface Route {
   index?: boolean;
   path?: string;
   element: ReactElement;
+  state?: string;
 }
+
 interface ProtectedRouteProps {
   children: ReactElement;
 }
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { authUser } = useAuthStore();
-  if (!authUser) {
+
+export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const { authUser, accessToken, loading, refresh } = useAuthStore();
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  useEffect(() => {
+    const init = async () => {
+      if (!accessToken && !authUser) {
+        try {
+          await refresh();
+        } catch (error) {
+          console.log("Failed to refresh token on init");
+        }
+      }
+      setIsInitializing(false);
+    };
+
+    init();
+  }, []);
+
+  if (isInitializing || loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  if (!authUser && !accessToken) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 const RedirectAuthenticatedUser = ({ children }: ProtectedRouteProps) => {
@@ -70,14 +100,13 @@ const routes: Route[] = [
     ),
   },
   {
-    path:"/messages" ,
-    element:(
-        <ProtectedRoute>
-          <MessagesPage/>
-        </ProtectedRoute>
-    )
-
-  }
+    path: "/messages",
+    element: (
+      <ProtectedRoute>
+        <MessagesPage />
+      </ProtectedRoute>
+    ),
+  },
 ];
 
 export default routes;

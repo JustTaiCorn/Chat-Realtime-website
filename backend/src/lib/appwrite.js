@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 dotenv.config();
 const client = new Client()
   .setEndpoint("https://nyc.cloud.appwrite.io/v1")
-  .setProject(process.env.APPWRITE_PROJECT_ID) // ID của dự án Appwrite
-  .setKey(process.env.APPWRITE_API_KEY); // API Key có quyền thao tác với Storage
+  .setProject(process.env.APPWRITE_PROJECT_ID)
+  .setKey(process.env.APPWRITE_API_KEY);
 const storage = new Storage(client);
 
 export { storage, ID };

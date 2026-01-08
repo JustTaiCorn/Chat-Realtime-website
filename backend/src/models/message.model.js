@@ -2,8 +2,14 @@ import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema(
   {
-    content: { type: String },
-    sender: {
+      conversationId:{
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Conversation",
+          required: true,
+          index: true
+      },
+    content: { type: String, trim:true },
+    senderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -13,7 +19,7 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    image: { type: String },
+    imageUrl: { type: String },
     file: {
       url: { type: String },
       name: { type: String },
@@ -23,6 +29,6 @@ const messageSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+messageSchema.index({ conversationId: 1,createdAt:-1 });
 const Message = mongoose.model("Message", messageSchema);
 export default Message;
