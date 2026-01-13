@@ -20,7 +20,7 @@ import LoginOauth2 from "../components/common/LoginOauth2.tsx";
  }
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = React.useState(false);
-  const { signup, isSigningUp } = useAuthStore();
+  const { signup, loading } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -137,9 +137,9 @@ export default function SignUpPage() {
             <button
               type="submit"
               className="btn btn-primary w-full mt-6"
-              disabled={isSubmitting || isSigningUp}
+              disabled={isSubmitting || loading}
             >
-              {isSubmitting || isSigningUp ? (
+              {isSubmitting || loading ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
                   <span>Signing Up...</span>

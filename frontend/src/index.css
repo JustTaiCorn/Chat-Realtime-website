@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@tailwind-scrollbar";
 @plugin "daisyui" {
-    themes: all;
-  }
+  themes: all;
+  tailwind-scrollbar ;
+}

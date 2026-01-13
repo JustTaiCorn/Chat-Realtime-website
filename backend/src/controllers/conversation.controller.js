@@ -56,6 +56,60 @@ export const  createConversation = async (req, res) => {
     }
 }
 
-export const getConversation = async (req, res) => {}
+export const getConversation = async (req, res) => {
+    try{
+        const userId = req.user._id;
+        const conversations = await Conversation.find({
+            "participants.userId":userId,
+        }).sort({lastMessageAt:-1,updatedAt:-1})
+            .populate([
+            {path:"participants.userId", select:" fullName profilePicture"},
+            {path:"lastMessage.senderId", select:" fullName profilePicture" },
+            {path:"seenBy", select:" fullName profilePicture" }
+        ])
+        const format = conversations.map((conversation)=>{
+            const participants = conversation.participants.map((p)=> {
+                return {
+                    _id: p.userId._id,
+                    fullName: p.userId.fullName,
+                    profilePicture: p.userId.profilePicture,
+                }
+            })
+            return {
+                ...conversation.toObject(),
+                unreadCounts:conversation.unreadCounts || 0,
+                participants,
+            }
+        })
+        return res.status(200).json({success:true,conversations:format});
+    }catch (e) {
+        console.log("Lỗi xảy ra khi lấy conversation",e)
+        res.status(500).send("Lỗi hệ thống");
+    }
 
-export const getMessages = async (req, res) => {}
+}
+
+export const getMessages = async (req, res) => {
+    try {
+        const {conversationId} = req.params;
+        const {limit = 50, cursor} = req.query;
+        const query = {conversationId};
+        if(cursor){
+            query.createdAt = {$lt: new Date(cursor)};
+        }
+        let messages = await Message.find(query).sort({createdAt:-1}).limit(Number(limit)+1)
+        let nextCursor = null;
+        if(messages.length > Number(limit)){
+            const nextMessage = messages[messages.length -1];
+            nextCursor = nextMessage.createdAt.toISOString();
+            messages.pop()
+        }
+        messages.reverse();
+        return res.status(200).json({success:true,messages,nextCursor});
+    }catch (e) {
+        console.error(e);
+        res.status(500).send("Lỗi hệ thống");
+    }
+
+
+}

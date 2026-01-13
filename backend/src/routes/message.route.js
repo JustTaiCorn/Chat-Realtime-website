@@ -4,10 +4,10 @@ import {
     sendDirectMessage, sendGroupMessage,
 } from "../controllers/message.controller.js";
 import upload from "../middleware/upload.js";
-import {checkFriend} from "../middleware/friend.middleware.js";
+import {checkFriend, checkGroupShip} from "../middleware/friend.middleware.js";
 const router = express.Router();
 router.post("/direct",protectRoute, checkFriend, sendDirectMessage);
-router.post("/group",protectRoute, sendGroupMessage);
+router.post("/group",protectRoute,checkGroupShip, sendGroupMessage);
 
 // router.get("/users", protectRoute, getUsersForChat);
 // router.get("/:id", protectRoute, getMessages);

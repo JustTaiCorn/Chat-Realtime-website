@@ -9,6 +9,8 @@ import passport from "passport";
 dotenv.config();
 const app = express();
 app.use(express.json());
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
 app.use(passport.initialize());
 const allowedOrigins = [
     'http://localhost:3000',
@@ -26,6 +28,8 @@ app.use(cors({
     credentials: true // nếu cần gửi cookie, auth header
 }));
 app.use(cookieParser());
+const swaggerDocument = JSON.parse(fs.readFileSync("./swagger.json", "utf8"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/api/v1", routes);
 const PORT = process.env.PORT ;
 app.listen(PORT, () => {

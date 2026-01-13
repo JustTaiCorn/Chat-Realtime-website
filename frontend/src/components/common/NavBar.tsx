@@ -20,7 +20,10 @@ export default function NavBar() {
             </Link>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/settings" className="btn btn-sm gap-2 transition-colors btn-outline  ">
+            <Link
+              to="/settings"
+              className="btn btn-sm gap-2 transition-colors btn-outline  "
+            >
               <Settings className="w-5 h-5" />
               <span className="hidden sm:block ">Settings</span>
             </Link>
@@ -36,7 +39,7 @@ export default function NavBar() {
                     <div className="w-10 rounded-full">
                       <img
                         alt="Tailwind CSS Navbar component"
-                        src={authUser.profilePicture || "/avatar.png" }
+                        src={authUser.profilePicture || "/avatar.png"}
                       />
                     </div>
                   </div>

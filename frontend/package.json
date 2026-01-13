@@ -14,6 +14,7 @@
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-query-devtools": "^5.81.2",
     "axios": "^1.10.0",
+    "clsx": "^2.1.1",
     "daisyui": "^5.0.43",
     "lucide-react": "^0.523.0",
     "react": "^19.1.0",
@@ -21,11 +22,15 @@
     "react-hook-form": "^7.58.1",
     "react-router-dom": "^7.6.2",
     "react-toastify": "^11.0.5",
+    "tailwind-merge": "^3.4.0",
+    "tailwind-scrollbar": "^4.0.2",
     "theme-change": "^2.5.0",
+    "zod": "^4.3.5",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@types/node": "^25.0.3",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",

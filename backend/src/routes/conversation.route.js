@@ -13,3 +13,5 @@ router.post("/", protectRoute,checkFriend, createConversation);
 router.get("/:conversationId", protectRoute, getConversation);
 
 router.get("/:conversationId/messages", protectRoute, getMessages);
+
+export default router;

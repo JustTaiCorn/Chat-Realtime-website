@@ -1,11 +1,10 @@
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
-import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import SignUpPage from "../pages/SignUpPage";
-import MessagesPage from "../pages/MessagesPage";
+import HomePage from "../pages/HomePage.tsx";
 
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../zustands/useAuthStore";
@@ -63,14 +62,13 @@ const RedirectAuthenticatedUser = ({ children }: ProtectedRouteProps) => {
 };
 
 const routes: Route[] = [
-  {
-    index: true,
-    element: (
-      <ProtectedRoute>
-        <HomePage />
-      </ProtectedRoute>
-    ),
-  },
+  // {
+  //   element: (
+  //     <ProtectedRoute>
+  //       <HomePage />
+  //     </ProtectedRoute>
+  //   ),
+  // },
   {
     path: "/signup",
     element: (
@@ -100,10 +98,11 @@ const routes: Route[] = [
     ),
   },
   {
-    path: "/messages",
+    index: true,
+    path: "/",
     element: (
       <ProtectedRoute>
-        <MessagesPage />
+        <HomePage />
       </ProtectedRoute>
     ),
   },

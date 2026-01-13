@@ -4,7 +4,7 @@ import ProfileUpdateImage from "../components/common/ProfileUpdateImage.tsx";
 import { Mail, User } from "lucide-react";
 
 export default function ProfilePage() {
-  const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
+  const { authUser, loading, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = React.useState<string>("");
   const handleUpdateProfile = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -37,7 +37,7 @@ export default function ProfilePage() {
           </div>
           <ProfileUpdateImage
             handleSubmit={handleUpdateProfile}
-            isUpdatingProfile={isUpdatingProfile}
+            isUpdatingProfile={loading}
             authUser={authUser || { profilePicture: "" }}
             selectedImg={selectedImg}
           />

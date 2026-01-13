@@ -19,7 +19,7 @@ type LoginFormData = {
 };
 export default function LoginPage() {
   const [showPassword, setShowPassword] = React.useState(false);
-  const { login, isLoggingIn, loginWithGoogle } = useAuthStore();
+  const { login, loading, loginWithGoogle } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -109,9 +109,9 @@ export default function LoginPage() {
             <button
               type="submit"
               className="btn btn-primary w-full mt-6"
-              disabled={isSubmitting || isLoggingIn}
+              disabled={isSubmitting ||loading}
             >
-              {isSubmitting || isLoggingIn ? (
+              {isSubmitting ||loading ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
                   <span>Logging In...</span>
