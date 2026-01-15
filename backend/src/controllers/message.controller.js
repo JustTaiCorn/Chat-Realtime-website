@@ -3,7 +3,8 @@ import { storage } from "../lib/appwrite.js";
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 import Conversation from "../models/conversation.model.js";
-import {updateConversationAfterCreateMessage} from "../utils/MessageHelper.js";
+import {emitNewMessage, updateConversationAfterCreateMessage} from "../utils/MessageHelper.js";
+import {io} from "../socket/server.js";
 
 // export const getUsersForChat = async (req, res) => {
 //   try {
@@ -71,6 +72,7 @@ export const sendDirectMessage = async (req, res) => {
     });
     updateConversationAfterCreateMessage(conversation,message,senderId);
     await conversation.save();
+    emitNewMessage(io,conversation,message)
     res.status(201).json({
       success: true,
       message
@@ -136,6 +138,7 @@ export const sendGroupMessage = async (req, res) => {
         await newMessage.save();
         updateConversationAfterCreateMessage(conversation,newMessage,senderId);
         await conversation.save();
+        emitNewMessage(io,conversation,newMessage)
 
         //TODO: Thêm socket.io để real-time
         res.status(201).json({

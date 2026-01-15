@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import {io} from "../socket/server.js";
 
 
 export const  createConversation = async (req, res) => {
@@ -112,4 +113,54 @@ export const getMessages = async (req, res) => {
     }
 
 
+}
+
+export const getConversationForSocketIo= async (userId) => {
+    try {
+        const conversations = await Conversation.find({
+            "participants.userId":userId,
+        },{_id:1})
+        return conversations.map(c=>c._id.toString());
+    }catch (e) {
+        console.error("Loi khi fetch convo",e);
+    }
+}
+
+export const markAsSeen = async (req,res)=>{
+    try {
+        const conversationId = req.params;
+        const userId = req.user._id;
+        const conversation = await Conversation.findById(conversationId).lean();
+        if(!conversation){
+            return res.status(404).json({success:false,message:"Cuộc trò chuyện không tồn tại"});
+        }
+        const last = conversation.lastMessage;
+        if(!last){
+            return res.status(400).json({success:false,message:"Cuộc trò chuyện không có tin nhắn"});
+        }
+        if(last.senderId.toString() === userId.toString()){
+            return res.status(400).json({success:false,message:"Không thể đánh dấu tin nhắn của chính mình là đã xem"});
+        }
+
+        const updated = await Conversation.findByIdAndUpdate(conversationId,{
+            $addToSet:{seenBy:userId},
+            $set:{[`unreadCounts.${userId.toString()}`]:0}
+        },{new:true}
+        )
+        io.to(conversationId).emit("read-message",{
+            conversation:updated,
+            lastMessage:{
+                _id:updated?.lastMessage._id,
+                content:updated?.lastMessage.content,
+                senderId:updated?.lastMessage.senderId,
+                createdAt:updated?.lastMessage.createdAt,
+            }
+        });
+
+        return res.status(200).json({success:true,conversation:updated, message:"Đã đánh dấu tin nhắn là đã xem",unreadCounts:updated.unreadCounts[userId] || 0});
+    }
+    catch (e) {
+            console.log("Lỗi khi đánh dấu tin nhắn là đã xem",e);
+            return res.status(500).json({success:false,message:"Lỗi hệ thống"});
+    }
 }

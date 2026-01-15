@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { chatService } from "../services/chatService.ts";
 import { toast } from "react-toastify";
 import { useAuthStore } from "./useAuthStore.ts";
+import type {Conversation, Message} from "@/types/chat.ts";
 
 export const useChatStore = create<ChatState>()(
   persist(
@@ -75,6 +76,135 @@ export const useChatStore = create<ChatState>()(
           toast.error("Co loi xay ra");
         }
       },
+      sendDirectMessage: async (
+        receiverId: string,
+        content: string,
+        imageUrl?: string
+      ) => {
+        try {
+          const { activeConversationId } = get();
+          const message = await chatService.sendDirectMessage(
+            receiverId,
+            content,
+            imageUrl,
+            activeConversationId || ""
+          );
+          set((state) => ({
+            conversations: state.conversations.map((conversation) => {
+              return conversation._id === activeConversationId
+                ? {
+                    ...conversation,
+                    seenBy: [],
+                  }
+                : conversation;
+            }),
+          }));
+        } catch (error) {
+          console.error("Lỗi khi gửi tin nhắn:", error);
+          toast.error("Không thể gửi tin nhắn");
+          throw error;
+        }
+      },
+      sendGroupMessage: async (
+        conversationId: string,
+        content: string,
+        imageUrl
+      ) => {
+        try {
+          const message = await chatService.sendGroupMessage(
+            conversationId,
+            content,
+            imageUrl
+          );
+          set((state) => ({
+            conversations: state.conversations.map((conversation) => {
+              return conversation._id === get().activeConversationId
+                ? {
+                    ...conversation,
+                    seenBy: [],
+                  }
+                : conversation;
+            }),
+          }));
+        } catch (error) {
+          console.error("Lỗi khi gửi tin nhắn nhóm:", error);
+          toast.error("Không thể gửi tin nhắn nhóm");
+          throw error;
+        }
+      },
+
+      addMessageToConversation: async (message: Message) => {
+        try {
+          const { authUser } = useAuthStore.getState();
+          const fetchMessages = get().fetchMessages;
+          message.isOwn = message.senderId === authUser?._id;
+          const convoId = message.conversationId;
+          let preMessages = get().messages[convoId] || [];
+          if (preMessages.messages.length === 0) {
+              fetchMessages(convoId);
+            preMessages = get().messages[convoId] || [];
+          }
+
+          set((state) => {
+            if (preMessages.messages.some((msg) => msg._id === message._id)) {
+              return state;
+            }
+            return {
+              messages: {
+                ...state.messages,
+                [convoId]: {
+                  messages: [...preMessages.messages, message],
+                  hasMore: state.messages[convoId]?.hasMore,
+                  nextCursor: state.messages[convoId]?.nextCursor,
+                },
+              },
+            };
+          });
+        } catch (error) {
+          console.error("Lỗi khi thêm tin nhắn vào cuộc trò chuyện:", error);
+          toast.error("Không thể thêm tin nhắn vào cuộc trò chuyện");
+          throw error;
+        }
+      },
+
+      updateConversation: (conversation: Conversation) => {
+        set((state) => ({
+          conversations: state.conversations.map((conv) =>
+            conv._id === conversation._id ? { ...conv, ...conversation } : conv
+          ),
+        }));
+      },
+
+        markAsSeen: async () => {
+          try {
+              const {authUser} = useAuthStore.getState();
+              const {activeConversationId, conversations} = get();
+              if(!authUser || !activeConversationId) return;
+              const convo = conversations.find(c => c._id === (activeConversationId));
+
+              if(!convo) return;
+
+              if((convo.unreadCounts[authUser._id] ?? 0) === 0) return;
+
+              await chatService.markAsSeen(activeConversationId)
+              set((state) => ({
+                  conversations: state.conversations.map((c) =>
+                      c._id === activeConversationId && c.lastMessage
+                          ? {
+                              ...c,
+                              unreadCounts: {
+                                  ...c.unreadCounts,
+                                  [authUser._id]: 0,
+                              },
+                          }
+                          : c
+                  ),
+              }));
+          }catch (e) {
+                console.error("Lỗi khi đánh dấu đã xem tin nhắn:", e);
+          }
+
+        }
     }),
     {
       name: "chat-storage",

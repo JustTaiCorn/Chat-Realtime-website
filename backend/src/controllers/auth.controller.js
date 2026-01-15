@@ -297,3 +297,25 @@ export const facebookAuth = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+    const userId = req.user._id;
+
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter is required" });
+    }
+
+    const users = await User.find({
+      _id: { $ne: userId },
+      fullName: { $regex: query, $options: "i" },
+    }).select("_id fullName  profilePicture");
+
+    res.status(200).json({ users });
+
+    } catch (error) {
+    console.log("Error in searchUsers controller:", error.message);
+    res.status(500).json({ message: "Không tìm Thấy người dùng " });
+  }}

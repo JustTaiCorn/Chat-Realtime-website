@@ -5,12 +5,14 @@ import { useChatStore } from "../../zustands/useChatStore.ts";
 import { cn } from "../../lib/utils.ts";
 import { UserAvatar } from "./UserAvatar.tsx";
 import { UnreadCountBadge } from "./UnreadCountBadge.tsx";
+import { useSocketStore } from "@/zustands/useSocketStore.ts";
 export const DirectMessageCard = ({
   conversation,
 }: {
   conversation: Conversation;
 }) => {
   const { authUser } = useAuthStore();
+  const { onlineUsers } = useSocketStore();
   const {
     activeConversationId,
     setActiveConversation,
@@ -44,7 +46,11 @@ export const DirectMessageCard = ({
               type="sidebar"
               name={otherParticipant.fullName ?? ""}
               profilePicture={otherParticipant.profilePicture ?? undefined}
-              status="offline"
+              status={
+                onlineUsers.includes(otherParticipant._id)
+                  ? "online"
+                  : "offline"
+              }
             />
             {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
           </>

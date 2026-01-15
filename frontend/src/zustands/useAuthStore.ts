@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { authService } from "../services/authService";
 import { persist } from "zustand/middleware";
-import {useChatStore} from "./useChatStore.ts";
+import { useChatStore } from "./useChatStore.ts";
 
 export interface User {
   _id: string;
@@ -57,7 +57,9 @@ export const useAuthStore = create<AuthStore>()(
 
       clearState: () => {
         set({ authUser: null, accessToken: null, loading: false }),
-          localStorage.clear();
+          useChatStore.getState().reset();
+        localStorage.clear();
+        sessionStorage.clear();
       },
 
       signup: async (data: SignUpData) => {
@@ -83,9 +85,8 @@ export const useAuthStore = create<AuthStore>()(
 
       login: async (data: LoginData) => {
         try {
+          get().clearState();
           set({ loading: true });
-          localStorage.clear();
-          useChatStore.getState().reset();
           const res = await authService.login(data.email, data.password);
           set({ authUser: res.user, accessToken: res.accessToken });
           useChatStore.getState().fetchConversations();

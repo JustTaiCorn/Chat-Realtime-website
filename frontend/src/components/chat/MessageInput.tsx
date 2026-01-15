@@ -1,68 +1,129 @@
-import {useRef, useState} from "react";
-import {type SubmitHandler, useForm} from "react-hook-form";
-import {Image, Send, X} from "lucide-react";
-type Message = {
-    text: string;
-    image?:File;
-}
-export default function MessageInput(){
-    const [imagePreview, setImagePreview] = useState(null);
-    const messageinputRef =useRef<HTMLInputElement>(null);
-    const {register,handleSubmit} = useForm<Message>();
-    const onSubmit: SubmitHandler<Message> = (data) => {
-        console.log(data);
+import { useState, useRef } from "react";
+import { Image, Send } from "lucide-react";
+import { useAuthStore } from "@/zustands/useAuthStore";
+import { useChatStore } from "@/zustands/useChatStore";
+import type { Conversation } from "@/types/chat";
+import { toast } from "react-toastify";
+import EmojiPicker from "./EmojiPicker";
 
-    }
-    const handleChangeImage = () => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            // @ts-ignore
-            reader.onload = () => setImagePreview(reader.result);
-            reader.readAsDataURL(file);
+const MessageInput = ({
+  selectedConversation,
+}: {
+  selectedConversation: Conversation;
+}) => {
+  const { authUser } = useAuthStore();
+  const { sendDirectMessage, sendGroupMessage } = useChatStore();
+  const [value, setValue] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (!authUser) return null;
+
+  const sendMessage = async () => {
+    if (!value.trim() && !imagePreview) return;
+    const currValue = value;
+    setValue("");
+    setImagePreview(null);
+
+    try {
+      if (selectedConversation.type === "direct") {
+        const otherUser = selectedConversation.participants.find(
+          (p) => p._id !== authUser._id
+        );
+        if (otherUser) {
+          await sendDirectMessage(otherUser._id, currValue);
         }
+      } else {
+        await sendGroupMessage(selectedConversation._id, currValue);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi xảy ra khi gửi tin nhắn. Bạn hãy thử lại!");
     }
-    const removeImage = () => {
-        setImagePreview(null);
-        if (messageinputRef.current) messageinputRef.current.value = "";
-    };
-    return(
-        <div className="p-4 w-full">
-        {
-            imagePreview &&
-        < div className= "flex items-center gap-2">
-                <div className="relative ">
-                    <img className="w-20 h-20 rounded-lg object-cover border border-zinc-700" src={imagePreview} alt="ImagePreview"/>
-                    <button className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" onClick={removeImage}>
-                        <X size={5}/>
-                    </button>
-                </div>
-        </div>
-        }
-        <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-2">
+  };
 
-            <div className="flex-1 flex gap-2">
-                <input className="input outline-none rounded-xl input-sm sm:input-md input-border w-full"
-                type="text" {...register("text")}/>
-                <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                ref={messageinputRef}
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
-                />
-                <button className={`hidden sm:flex btn btn-circle ${
-                    imagePreview? "text-emerald-500" : "text-zinc-400"
-                }`}
-                onClick={()=> messageinputRef.current?.click()}>
-                    <Image size={20} />
-                </button>
-            </div>
-            <button type="submit" className="btn btn-lg btn-circle ">
-                <Send size="20"/>
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  return (
+    <div className="p-4 w-full bg-base-100 border-t border-base-300">
+      {imagePreview && (
+        <div className="mb-3 flex items-center gap-2">
+          <div className="relative">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-20 h-20 object-cover rounded-lg border border-base-300"
+            />
+            <button
+              onClick={() => setImagePreview(null)}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-base-300 rounded-full flex items-center justify-center hover:bg-base-content hover:text-base-100 transition-colors"
+            >
+              <span className="text-xs">×</span>
             </button>
-        </form>
+          </div>
         </div>
-    )
-    
-}
+      )}
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className={`btn btn-circle btn-ghost btn-sm ${
+            imagePreview ? "text-primary" : "text-base-content/50"
+          }`}
+        >
+          <Image size={20} />
+        </button>
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleImageChange}
+        />
+
+        <div className="flex-1 relative flex items-center">
+          <input
+            type="text"
+            className="input input-bordered w-full pr-12 rounded-xl input-md focus:outline-primary"
+            placeholder="Soạn tin nhắn..."
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKeyPress}
+          />
+          <div className="absolute right-2 flex items-center">
+            <EmojiPicker
+              onChange={(emoji) => setValue((prev) => prev + emoji)}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={sendMessage}
+          disabled={!value.trim() && !imagePreview}
+          className="btn btn-primary btn-circle"
+        >
+          <Send size={20} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default MessageInput;

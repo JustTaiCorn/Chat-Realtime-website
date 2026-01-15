@@ -4,12 +4,14 @@ import { useChatStore } from "../../zustands/useChatStore.ts";
 import { useAuthStore } from "../../zustands/useAuthStore.ts";
 import { UserAvatar } from "./UserAvatar.tsx";
 import GroupChatAvatar from "./GroupChatAvatar.tsx";
+import { useSocketStore } from "@/zustands/useSocketStore.ts";
 
 interface ChatHeaderProps {
   chat?: Conversation;
 }
 const ChatHeader = ({ chat }: ChatHeaderProps) => {
   const { authUser } = useAuthStore();
+  const { onlineUsers } = useSocketStore();
   const { conversations, activeConversationId, setActiveConversation } =
     useChatStore();
   const currentChat =
@@ -40,7 +42,11 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
               type={"sidebar"}
               name={otherParticipant?.fullName}
               profilePicture={otherParticipant?.profilePicture || undefined}
-              status="online"
+              status={
+                onlineUsers.includes(otherParticipant?._id || "")
+                  ? "online"
+                  : "offline"
+              }
             />
           ) : (
             <GroupChatAvatar
@@ -59,7 +65,7 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
         </div>
 
         {/* Close button */}
-        <button onClick={() => setActiveConversation(null)}>    
+        <button onClick={() => setActiveConversation(null)}>
           <X />
         </button>
       </div>

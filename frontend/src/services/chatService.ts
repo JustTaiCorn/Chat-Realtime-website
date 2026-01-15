@@ -1,4 +1,4 @@
-import type {ConversationResponse, Message} from "../types/chat.ts";
+import type { ConversationResponse, Message } from "../types/chat.ts";
 import privateClient from "../lib/axios.ts";
 
 interface MessagesPResponse {
@@ -23,4 +23,30 @@ export const chatService = {
       cursor: response.data.nextCursor,
     };
   },
+  async sendDirectMessage(
+    receiverId: string,
+    content: string = "",imageUrl?:string,
+    conversationId?: string
+  ): Promise<Message> {
+    const response = await privateClient.post("/messages/direct", {
+      receiverId,
+      content,imageUrl,conversationId
+    });
+    return response.data.messages;
+  },
+  async sendGroupMessage(
+    conversationId: string,
+    content: string ="",
+    imageUrl?:string
+  ): Promise<Message> {
+    const response = await privateClient.post("/messages/group", {
+      conversationId,
+      content ,imageUrl
+    });
+    return response.data.messages;
+  },
+    async markAsSeen(conversationId: string): Promise<void>  {
+    const  res = await privateClient.post(`/conversations/${conversationId}/seen`);
+     return res.data
+    }
 };

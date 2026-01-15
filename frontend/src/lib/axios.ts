@@ -6,13 +6,13 @@ import type {
 } from "axios";
 import { useAuthStore } from "../zustands/useAuthStore";
 
-const API_URL =
-  /* import.meta.env.MODE === "production"
-    ? "https://corn-films.onrender.com/api/v1"
-    : */ "http://localhost:3001/api/v1";
+// const API_URL =
+//   /* import.meta.env.MODE === "production"
+//     ? "https://corn-films.onrender.com/api/v1"
+//     : */ "http://localhost:3001/api/v1";
 
 const privateClient: AxiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 

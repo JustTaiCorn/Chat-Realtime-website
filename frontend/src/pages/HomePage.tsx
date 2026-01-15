@@ -14,7 +14,7 @@ export default function HomePage() {
     <div className="h-screen bg-base-200 pt-20">
       <div className="flex">
         <SideBar />
-        <div className="bg-base-100 rounded-3xl w-full max-w-6xl h-[calc(100vh-6rem)] shadow-md">
+        <div className="bg-base-100 rounded-md w-full max-w-6xl h-[calc(100vh-6rem)] shadow-md">
           <div className="flex h-full overflow-hidden">
             {!selectedConversation ? (
               <NoChat />

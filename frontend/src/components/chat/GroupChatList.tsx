@@ -1,6 +1,5 @@
 
 import { useChatStore } from "../../zustands/useChatStore.ts";
-import type { Conversation } from "../../types/chat.ts";
 import { GroupChatCard } from "./GroupChatCard.tsx";
 
 export const GroupChatList = () => {
