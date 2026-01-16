@@ -14,7 +14,7 @@ export const ChatWindowBody = () => {
     "delivered" | "seen"
   >("delivered");
 
-  const messages = allMessages[activeConversationId || ""]?.messages || [];
+  const messages = allMessages[activeConversationId || ""]?.items || [];
   const reverseMessages = [...messages].reverse();
   const hasMore = allMessages[activeConversationId || ""]?.hasMore || false;
   const selectedConversation =

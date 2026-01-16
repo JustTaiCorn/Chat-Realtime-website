@@ -2,10 +2,13 @@ import { MessageSquarePlus, Users, UserPlus } from "lucide-react";
 import { GroupChatList } from "../chat/GroupChatList.tsx";
 import { DirectMessageList } from "../chat/DirectMessageList.tsx";
 import { useState } from "react";
+import { AddFriendModal } from "@/components/chat/AddFriendModal.tsx";
+import FriendListModal from "@/components/createNewChat/FriendListModal.tsx";
 
 export default function SideBar() {
   const [isNewGroupModalOpen, setNewGroupModalOpen] = useState(false);
   const [isAddFriendModalOpen, setAddFriendModalOpen] = useState(false);
+  const [isFriendListModalOpen, setFriendListModalOpen] = useState(false);
 
   return (
     <div className="h-[calc(100vh-6rem)] lg:w-80 w-20 flex flex-col bg-base-200 ml-4 mr-2.5 rounded-2xl overflow-hidden">
@@ -14,6 +17,7 @@ export default function SideBar() {
         <button
           className="btn btn-ghost btn-sm btn-circle"
           title="Tạo cuộc trò chuyện mới"
+          onClick={() => setFriendListModalOpen(true)}
         >
           <MessageSquarePlus className="size-5" />
         </button>
@@ -54,6 +58,16 @@ export default function SideBar() {
         </div>
         <DirectMessageList />
       </div>
+
+      <AddFriendModal
+        isOpen={isAddFriendModalOpen}
+        onClose={() => setAddFriendModalOpen(false)}
+      />
+
+      <FriendListModal
+        isOpen={isFriendListModalOpen}
+        onClose={() => setFriendListModalOpen(false)}
+      />
     </div>
   );
 }

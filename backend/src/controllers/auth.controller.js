@@ -298,7 +298,6 @@ export const facebookAuth = async (req, res) => {
   }
 };
 
-
 export const searchUsers = async (req, res) => {
   try {
     const { query } = req.query;
@@ -314,8 +313,8 @@ export const searchUsers = async (req, res) => {
     }).select("_id fullName  profilePicture");
 
     res.status(200).json({ users });
-
-    } catch (error) {
+  } catch (error) {
     console.log("Error in searchUsers controller:", error.message);
     res.status(500).json({ message: "Không tìm Thấy người dùng " });
-  }}
+  }
+};

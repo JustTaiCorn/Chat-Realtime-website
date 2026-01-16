@@ -33,7 +33,7 @@ export const DirectMessageCard = ({
   const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
     if (!messages[id]) {
-      await fetchMessages(id);
+      fetchMessages(id);
     }
   };
   return (

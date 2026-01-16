@@ -3,31 +3,43 @@ import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { MainLayout } from "./components/layouts/Mainlayout";
-import {Suspense, useEffect} from "react";
+import { Suspense, useEffect } from "react";
 import Loading from "./components/common/Loading";
 import { ToastContainer } from "react-toastify";
 import routes from "./routes/routes";
 import { ScrollToTop } from "./hooks/useScrollTop.tsx";
 
 import { useThemeStore } from "./zustands/useThemeStore.ts";
-import {useAuthStore} from "@/zustands/useAuthStore.ts";
-import {useSocketStore} from "@/zustands/useSocketStore.ts";
+import { useAuthStore } from "@/zustands/useAuthStore.ts";
+import { useSocketStore } from "@/zustands/useSocketStore.ts";
 
 const queryClient = new QueryClient();
 
 function App() {
   const { theme } = useThemeStore();
-  const {accessToken} = useAuthStore();
-  const {connectSocket, disconnectSocket} = useSocketStore()
+  const { accessToken, authUser, refresh } = useAuthStore();
+  const { connectSocket, disconnectSocket } = useSocketStore();
+  useEffect(() => {
+    const initAuth = async () => {
+      if (authUser && !accessToken) {
+        try {
+          await refresh();
+        } catch (error) {
+          console.error("Failed to refresh token on mount:", error);
+        }
+      }
+    };
+    initAuth();
+  }, []);
 
-    useEffect(()=>{
-        if(accessToken){
-            connectSocket();
-        }
-        return ()=>{
-            disconnectSocket();
-        }
-    },[accessToken])
+  useEffect(() => {
+    if (accessToken) {
+      connectSocket();
+    }
+    return () => {
+      disconnectSocket();
+    };
+  }, [accessToken]);
   return (
     <>
       <div data-theme={theme}>

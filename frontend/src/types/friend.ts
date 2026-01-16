@@ -9,8 +9,16 @@ export interface Friend {
   phone?: string;
 }
 
-export interface FriendRequest {
-  id: string;
-  fullname: string;
+export interface UserInfo {
+  _id: string;
+  fullName: string;
   profilePicture?: string;
+}
+
+export interface FriendRequest {
+  _id: string;
+  from?: UserInfo;
+  to?: UserInfo;
+  message?: string;
+  createdAt?: string;
 }
