@@ -21,15 +21,13 @@ export default function ChatContainer() {
         }
         markSeen();
     }, [markAsSeen, selectedConversation]);
-  return (
-    <div className="flex flex-1 overflow-auto flex-col">
-      <ChatHeader chat={selectedConversation}/>
-      <div className="flex flex-1 overflow-y-auto space-y-4 p-4">
-        <ChatWindowBody />
-      </div>
-      {selectedConversation && (
-        <MessageInput selectedConversation={selectedConversation} />
-      )}
-    </div>
-  );
+    return (
+        <div className="flex flex-1 flex-col overflow-hidden">
+            <ChatHeader chat={selectedConversation}/>
+            <ChatWindowBody />
+            {selectedConversation && (
+                <MessageInput selectedConversation={selectedConversation} />
+            )}
+        </div>
+    );
 }

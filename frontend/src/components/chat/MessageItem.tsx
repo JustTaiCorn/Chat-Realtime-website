@@ -18,48 +18,63 @@ export const MessageItem = ({
   lastMessageStatus,
 }: MessageItemProps) => {
   const { content, imgUrl, createdAt, isOwn, senderId } = message;
-  const pre =index + 1 <messages.length ? messages[index + 1] :undefined ;
-  const isGroupBreak =
+  const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
+
+  const isShowTime =
     index === 0 ||
-    senderId !== pre?.senderId ||
-    new Date(createdAt).getTime() - new Date(pre.createdAt).getTime() >
-      60 * 60 * 1000;
+    new Date(message.createdAt).getTime() -
+      new Date(prev?.createdAt || 0).getTime() >
+      300000; // 5 phút
+
+  const isGroupBreak = isShowTime || message.senderId !== prev?.senderId;
+
   const participant = selectedConversation.participants.find(
     (p) => p._id.toString() === senderId.toString()
   );
+
   return (
-    <div className={cn("flex gap-2", isOwn ? "justify-end" : "justify-start")}>
+    <div className={cn("chat", isOwn ? "chat-end" : "chat-start")}>
       {!isOwn && isGroupBreak && (
-        <div className="w-8">
-          <UserAvatar
-            type="chat"
-            name={participant?.fullName}
-            profilePicture={participant?.profilePicture ?? undefined}
-          />
+        <div className="chat-image avatar">
+          <div className="w-10">
+            <UserAvatar
+              type="chat"
+              name={participant?.fullName}
+              profilePicture={participant?.profilePicture ?? undefined}
+            />
+          </div>
         </div>
       )}
+
+      {!isOwn && isGroupBreak && (
+        <div className="chat-header">{participant?.fullName}</div>
+      )}
+
       <div
-        className={`max-w-xs lg:max-w-md space-y-1 flex flex-col rounded-xl  chat p-3 ${
-          isOwn ? "bg-primary" : "bg-secondary"
-        }`}
-      >
-        {content && (
-          <p
-            className={`chat-bubble text-sm leading-relax break-words ${
-              isOwn ? "chat-bubble-primary" : "chat-bubble-secondary"
-            }`}
-          >
-            {content}
-          </p>
+        className={cn(
+          "chat-bubble max-w-xs lg:max-w-md",
+          isOwn ? "chat-bubble-primary" : "chat-bubble-secondary"
         )}
-        <div className="chat-footer opacity-50 flex items-center gap-1">
-          {formatMessageTime(new Date(createdAt))}
-          {isOwn && index === messages.length - 1 && (
-            <span className="text-[10px] font-medium ml-1">
-              • {lastMessageStatus === "seen" ? "Đã xem" : "Đã gửi"}
-            </span>
-          )}
-        </div>
+      >
+        {imgUrl && (
+          <img
+            src={imgUrl}
+            alt="Message attachment"
+            className="rounded-lg mb-2"
+          />
+        )}
+        {content && (
+          <p className="text-sm leading-relaxed break-words">{content}</p>
+        )}
+      </div>
+
+      <div className="chat-footer opacity-50 flex items-center gap-1">
+        {formatMessageTime(new Date(createdAt))}
+        {isOwn && index === messages.length - 1 && (
+          <span className="text-[10px] font-medium ml-1">
+            • {lastMessageStatus === "seen" ? "Đã xem" : "Đã gửi"}
+          </span>
+        )}
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
           )}
           {/* User info */}
           <div>
-            <h3 className="font-semibold text-primary-content">
+            <h3 className="font-semibold text-primary">
               {chat?.type === "direct"
                 ? otherParticipant?.fullName
                 : currentChat.group.name}
@@ -65,7 +65,7 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
         </div>
 
         {/* Close button */}
-        <button onClick={() => setActiveConversation(null)}>
+        <button onClick={() => setActiveConversation(null)} className="btn btn-ghost btn-circle">
           <X />
         </button>
       </div>

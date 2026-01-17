@@ -63,23 +63,25 @@ export const useChatStore = create<ChatState>()(
             isOwn: message.senderId === user?._id,
           }));
           set((state) => {
-                const pre = state.messages[convoId]?.items ?? [];
-                const merged = pre.length > 0 ? [...pre, ...processed] : processed;
+            const pre = state.messages[convoId]?.items ?? [];
+            const merged = pre.length > 0 ? [...pre, ...processed] : processed;
 
-                return {
-                    messages: {
-                        ...state.messages,
-                        [convoId]: {
-                            items: merged,
-                            hasMore: !!cursor,
-                            nextCursor: cursor || null,
-                        },
-                    },
-                };
-            });
+            return {
+              messages: {
+                ...state.messages,
+                [convoId]: {
+                  items: merged,
+                  hasMore: !!cursor,
+                  nextCursor: cursor || null,
+                },
+              },
+            };
+          });
         } catch (e: unknown) {
           console.error("Lỗi xảy ra khi lấy Message", e);
-          toast.error("Co loi xay ra,",);
+          toast.error("Co loi xay ra,");
+        } finally {
+          set({ MessageLoading: false });
         }
       },
       sendDirectMessage: async (
