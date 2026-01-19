@@ -47,7 +47,7 @@ export const FriendRequestModal = ({
         </div>
 
         {/* Tabs */}
-        <div role="tablist" className="tabs  mt-4 ">
+        <div role="tablist" className="tabs tabs-boxed  mt-4 ">
           <button
             role="tab"
             className={`tab ${activeTab === "received" ? "tab-active" : ""}`}

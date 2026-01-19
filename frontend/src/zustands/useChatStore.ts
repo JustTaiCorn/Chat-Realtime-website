@@ -200,10 +200,13 @@ export const useChatStore = create<ChatState>()(
           throw error;
         }
       },
-      updateConversation: (conversation: Conversation) => {
-        set((state) => ({
+      updateConversation: (conversation) => {
+       
+          set((state) => ({
           conversations: state.conversations.map((conv) =>
-            conv._id === conversation._id ? { ...conv, ...conversation } : conv
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error
+              conv._id === conversation._id ? { ...conv, ...conversation } : conv
           ),
         }));
       },

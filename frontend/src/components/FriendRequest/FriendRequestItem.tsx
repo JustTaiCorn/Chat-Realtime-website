@@ -13,15 +13,29 @@ const FriendRequestItem = ({
   actions,
   type,
 }: FriendRequestItemProps) => {
-  if (!requestInfo) return null;
+  if (!requestInfo) {
+    console.log("FriendRequestItem: No requestInfo, returning null");
+    return null;
+  }
+
   const userInfo = type === "sent" ? requestInfo.to : requestInfo.from;
+
+  console.log("FriendRequestItem userInfo:", {
+    type,
+    userInfo,
+    hasUserInfo: !!userInfo,
+  });
 
   if (!userInfo) return null;
 
   return (
     <div className="flex items-center justify-between rounded-xl bg-base-200/50 hover:bg-base-200 transition-all border border-transparent hover:border-primary/20 p-4">
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <UserAvatar type="sidebar" name={userInfo.fullName} />
+        <UserAvatar
+          type="sidebar"
+          name={userInfo.fullName}
+          profilePicture={userInfo?.profilePicture || ""}
+        />
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-base truncate">
             {userInfo.fullName}

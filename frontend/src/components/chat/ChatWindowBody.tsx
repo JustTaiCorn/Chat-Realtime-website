@@ -3,6 +3,7 @@ import MessageItem from "./MessageItem.tsx";
 import NoChat from "./Nochat.tsx";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import {useSocketStore} from "@/zustands/useSocketStore.ts";
 export const ChatWindowBody = () => {
   const {
     activeConversationId,
@@ -13,12 +14,14 @@ export const ChatWindowBody = () => {
   const [lastMessageStatus, setLastMessageStatus] = useState<
     "delivered" | "seen"
   >("delivered");
-
+    const { onlineUsers } = useSocketStore();
   const messages = allMessages[activeConversationId || ""]?.items || [];
   const reverseMessages = [...messages].reverse();
   const hasMore = allMessages[activeConversationId || ""]?.hasMore || false;
   const selectedConversation =
-    conversations.find((c) => c._id === activeConversationId) || null;
+    conversations.find((c) => c._id === activeConversationId)
+      || null;
+  console.log("selectedConversation", selectedConversation);
   const key = `chat_scroll_${activeConversationId}`;
   const messageRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -104,6 +107,7 @@ useLayoutEffect(() => {
           >
             {reverseMessages.map((message, index) => (
               <MessageItem
+                  onlineUsers={onlineUsers}
                 key={message._id || index}
                 message={message}
                 index={index}

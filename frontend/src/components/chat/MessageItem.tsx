@@ -3,6 +3,7 @@ import { cn, formatMessageTime } from "../../lib/utils.ts";
 import { UserAvatar } from "./UserAvatar.tsx";
 
 interface MessageItemProps {
+  onlineUsers: string[];
   message: Message;
   index: number;
   messages: Message[];
@@ -11,15 +12,15 @@ interface MessageItemProps {
 }
 
 export const MessageItem = ({
+  onlineUsers,
   message,
   index,
   messages,
   selectedConversation,
   lastMessageStatus,
 }: MessageItemProps) => {
-  const { content, imgUrl, createdAt, isOwn, senderId } = message;
+  const { content, imgUrl, createdAt, isOwn } = message;
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
-
   const isShowTime =
     index === 0 ||
     new Date(message.createdAt).getTime() -
@@ -27,11 +28,10 @@ export const MessageItem = ({
       300000; // 5 phút
 
   const isGroupBreak = isShowTime || message.senderId !== prev?.senderId;
-
+  console.log("participant", selectedConversation.participants);
   const participant = selectedConversation.participants.find(
-    (p) => p._id.toString() === senderId.toString()
+    (p) => p._id?.toString() === message.senderId?.toString()
   );
-
   return (
     <div className={cn("chat", isOwn ? "chat-end" : "chat-start")}>
       {!isOwn && isGroupBreak && (
@@ -41,6 +41,11 @@ export const MessageItem = ({
               type="chat"
               name={participant?.fullName}
               profilePicture={participant?.profilePicture ?? undefined}
+              status={
+                onlineUsers.includes(participant?._id || "")
+                  ? "online"
+                  : "offline"
+              }
             />
           </div>
         </div>

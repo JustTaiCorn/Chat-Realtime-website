@@ -24,9 +24,7 @@ const SentRequests = () => {
           key={req._id}
           requestInfo={req}
           type="sent"
-          actions={
-            <span className="badge badge-warning badge-sm">Đang chờ</span>
-          }
+          actions={<p className="badge badge-warning badge-sm p-2">Đang chờ</p>}
         />
       ))}
     </div>

@@ -34,7 +34,7 @@ export default function SideBar() {
             title="Tạo nhóm mới"
           >
             <Users className="size-4" />
-            <span className="hidden lg:inline">NewGroupChat</span>
+            <span className="hidden lg:inline">Tạo Nhóm Chat Mới</span>
           </button>
         </div>
         <GroupChatList />
@@ -53,7 +53,7 @@ export default function SideBar() {
             title="Thêm bạn"
           >
             <UserPlus className="size-4" />
-            <span className="hidden lg:inline">AddFriendModal</span>
+            <span className="hidden lg:inline">Thêm Bạn Mới</span>
           </button>
         </div>
         <DirectMessageList />

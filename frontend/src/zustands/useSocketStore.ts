@@ -54,6 +54,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
 
     newSocket.on("read-message", ({ conversation, lastMessage }) => {
       const updated = {
+        _id: conversation._id,
         ...conversation,
         lastMessage,
         lastMessageAt: conversation.lastMessageAt,
@@ -62,6 +63,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       };
 
       useChatStore.getState().updateConversation(updated);
+    });
+    newSocket.on("new-group", (conversation) => {
+        useChatStore.getState().addConversation(conversation);
+        newSocket.emit("join-conversation", conversation._id);
     });
   },
   disconnectSocket: () => {

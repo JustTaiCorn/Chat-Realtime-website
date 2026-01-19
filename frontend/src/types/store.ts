@@ -32,7 +32,7 @@ export interface ChatState {
     imageUrl?: string
   ) => Promise<void>;
   addMessageToConversation: (message: Message) => Promise<void>;
-  updateConversation: (conversation: Conversation) => void;
+  updateConversation: (conversation: unknown) => void;
   markAsSeen: () => void;
   addConversation: (conversation: Conversation) => void;
   createConversation: (

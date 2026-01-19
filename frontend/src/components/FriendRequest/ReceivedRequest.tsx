@@ -6,6 +6,7 @@ import { useState } from "react";
 const ReceivedRequests = () => {
   const { receivedList, acceptFriendRequest, rejectFriendRequest, loading } =
     useFriendStore();
+  console.log("Received list:", receivedList);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const handleAccept = async (requestId: string) => {
@@ -39,46 +40,49 @@ const ReceivedRequests = () => {
   }
 
   return (
-    <div className="tab-content space-y-3">
-      {receivedList.map((req) => (
-        <FriendRequestItem
-          key={req._id}
-          requestInfo={req}
-          type="received"
-          actions={
-            <div className="flex gap-2">
-              <button
-                className="btn btn-success btn-sm gap-2"
-                onClick={() => handleAccept(req._id)}
-                disabled={loading || processingId === req._id}
-              >
-                {processingId === req._id ? (
-                  <span className="loading loading-spinner loading-xs" />
-                ) : (
-                  <>
-                    <UserCheck className="w-4 h-4" />
-                    <span className="hidden sm:inline">Chấp nhận</span>
-                  </>
-                )}
-              </button>
-              <button
-                className="btn btn-error btn-sm gap-2"
-                onClick={() => handleDecline(req._id)}
-                disabled={loading || processingId === req._id}
-              >
-                {processingId === req._id ? (
-                  <span className="loading loading-spinner loading-xs" />
-                ) : (
-                  <>
-                    <UserX className="w-4 h-4" />
-                    <span className="hidden sm:inline">Từ chối</span>
-                  </>
-                )}
-              </button>
-            </div>
-          }
-        />
-      ))}
+    <div className=" space-y-3">
+      {receivedList.map((req) => {
+        console.log("Friend request item:", req);
+        return (
+          <FriendRequestItem
+            key={req._id}
+            requestInfo={req}
+            type="received"
+            actions={
+              <div className="flex gap-2">
+                <button
+                  className="btn btn-success btn-sm gap-2"
+                  onClick={() => handleAccept(req._id)}
+                  disabled={loading || processingId === req._id}
+                >
+                  {processingId === req._id ? (
+                    <span className="loading loading-spinner loading-xs" />
+                  ) : (
+                    <>
+                      <UserCheck className="w-4 h-4" />
+                      <span className="hidden sm:inline">Chấp nhận</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  className="btn btn-error btn-sm gap-2"
+                  onClick={() => handleDecline(req._id)}
+                  disabled={loading || processingId === req._id}
+                >
+                  {processingId === req._id ? (
+                    <span className="loading loading-spinner loading-xs" />
+                  ) : (
+                    <>
+                      <UserX className="w-4 h-4" />
+                      <span className="hidden sm:inline">Từ chối</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            }
+          />
+        );
+      })}
     </div>
   );
 };

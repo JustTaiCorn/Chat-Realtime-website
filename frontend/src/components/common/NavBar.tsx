@@ -20,7 +20,7 @@ export default function NavBar() {
     if (authUser) {
       getAllFriendRequest();
     }
-  }, [authUser]);
+  }, [authUser, getAllFriendRequest]);
 
   return (
     <>
@@ -39,17 +39,19 @@ export default function NavBar() {
               </Link>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setNotificationModalOpen(true)}
-                className="btn btn-sm btn-ghost btn-circle indicator"
-              >
-                <Bell className="w-5 h-5" />
-                {receivedList.length > 0 && (
-                  <span className="badge badge-sm badge-primary indicator-item">
-                    {receivedList.length}
-                  </span>
-                )}
-              </button>
+              {authUser && (
+                <button
+                  onClick={() => setNotificationModalOpen(true)}
+                  className="btn btn-sm btn-ghost btn-circle indicator"
+                >
+                  <Bell className="w-5 h-5" />
+                  {receivedList.length > 0 && (
+                    <span className="badge badge-sm badge-primary indicator-item">
+                      {receivedList.length}
+                    </span>
+                  )}
+                </button>
+              )}
               <Link
                 to="/settings"
                 className="btn btn-sm gap-2 transition-colors btn-outline  "

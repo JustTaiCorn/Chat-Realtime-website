@@ -68,6 +68,11 @@ export const createConversation = async (req, res) => {
       ...conversation.toObject(),
       participants,
     };
+    if(type === "group"){
+        memberIds.forEach((memberId) => {
+          io.to(memberId).emit("new-group", formatConversation);
+        },);
+    }
     res.status(201).json({ success: true, conversation: formatConversation });
   } catch (err) {
     console.log("Lỗi tạo cuộc trò chuyện:", err);
