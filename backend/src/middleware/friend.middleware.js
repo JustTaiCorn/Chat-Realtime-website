@@ -72,6 +72,7 @@ export const checkGroupShip = async (req, res, next) => {
         message: "Bạn không phải là thành viên của cuộc trò chuyện này",
       });
     }
+    req.conversation = conversation;
     next();
   } catch (e) {
     console.log(e);

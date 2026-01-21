@@ -24,7 +24,11 @@ export const UserAvatar = ({
   };
 
   return (
-    <div className={cn("avatar", profilePicture ? "" : "avatar-placeholder",status === "online" ? "avatar-online" :"avatar-offline"  )}>
+    <div className={cn("avatar", profilePicture ? "" : "avatar-placeholder", status
+        ? status === "online"
+            ? "avatar-online"
+            : "avatar-offline"
+        : "" )}>
       <div
         className={cn(
           "rounded-full",

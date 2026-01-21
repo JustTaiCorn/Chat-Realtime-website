@@ -15,6 +15,7 @@ export const useChatStore = create<ChatState>()(
       activeConversationId: null,
       ConversationLoading: false,
       MessageLoading: false,
+      loading: false,
 
       setActiveConversation: (conversationId: string | null) =>
         set({ activeConversationId: conversationId }),
@@ -37,6 +38,7 @@ export const useChatStore = create<ChatState>()(
           activeConversationId: null,
           ConversationLoading: false,
           MessageLoading: false,
+          loading: false,
         });
       },
       fetchMessages: async (conversationId: string) => {
@@ -87,14 +89,14 @@ export const useChatStore = create<ChatState>()(
       sendDirectMessage: async (
         receiverId: string,
         content: string,
-        imageUrl?: string
+        image?: File
       ) => {
         try {
           const { activeConversationId } = get();
           await chatService.sendDirectMessage(
             receiverId,
             content,
-            imageUrl,
+            image,
             activeConversationId || ""
           );
           set((state) => ({
@@ -116,10 +118,10 @@ export const useChatStore = create<ChatState>()(
       sendGroupMessage: async (
         conversationId: string,
         content: string,
-        imageUrl
+        image?: File
       ) => {
         try {
-          await chatService.sendGroupMessage(conversationId, content, imageUrl);
+          await chatService.sendGroupMessage(conversationId, content, image);
           set((state) => ({
             conversations: state.conversations.map((conversation) => {
               return conversation._id === get().activeConversationId
@@ -184,6 +186,7 @@ export const useChatStore = create<ChatState>()(
         });
       },
       createConversation: async (type, memberIds, name) => {
+        set({ loading: true });
         try {
           const conversation = await chatService.createConversation(
             type,
@@ -198,15 +201,16 @@ export const useChatStore = create<ChatState>()(
           console.error("Lỗi khi tạo cuộc trò chuyện:", error);
           toast.error("Không thể tạo cuộc trò chuyện");
           throw error;
+        } finally {
+          set({ loading: false });
         }
       },
       updateConversation: (conversation) => {
-       
-          set((state) => ({
+        set((state) => ({
           conversations: state.conversations.map((conv) =>
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-expect-error
-              conv._id === conversation._id ? { ...conv, ...conversation } : conv
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            conv._id === conversation._id ? { ...conv, ...conversation } : conv
           ),
         }));
       },

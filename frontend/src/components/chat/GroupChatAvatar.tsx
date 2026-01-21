@@ -11,7 +11,7 @@ const GroupChatAvatar = ({ participants, type }: GroupChatAvatarProps) => {
   const limit = Math.min(participants.length, 4);
 
   return (
-    <div className="avatar-group -space-x-4 rtl:space-x-reverse">
+    <div className="avatar-group -space-x-5 rtl:space-x-reverse">
       {participants.slice(0, limit).map((member, i) => (
         <UserAvatar
           key={i}

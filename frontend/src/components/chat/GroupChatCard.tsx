@@ -11,18 +11,22 @@ export const GroupChatCard = ({
   conversation: Conversation;
 }) => {
   const { authUser } = useAuthStore();
-  const { activeConversationId, setActiveConversation, messages } =
-    useChatStore();
+  const {
+    activeConversationId,
+    setActiveConversation,
+    messages,
+    fetchMessages,
+  } = useChatStore();
   if (!authUser) {
     return null;
   }
-  const unreadCount = conversation.unreadCounts[authUser._id] || 0;
+  const unreadCount = conversation.unreadCounts?.[authUser._id] || 0;
   const name = conversation.group?.name || "Unnamed Group";
-  const handleSelectConversation = (id: string) => () => {
+  const handleSelectConversation = async (id: string) => {
     setActiveConversation(id);
-    // if(!messages[id]){
-    //     // await fetchMessages(id);
-    // }
+    if (!messages[id]) {
+      await fetchMessages(id);
+    }
   };
   return (
     <div>

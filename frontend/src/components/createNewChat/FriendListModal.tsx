@@ -28,7 +28,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
 
   return (
     <div className="modal modal-open z-[100]">
-      <div className="modal-box max-w-md">
+      <form method="dialog" className="modal-box max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-base-300">
           <div className="flex items-center gap-3">
@@ -63,7 +63,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
                 <div
                   key={f?._id}
                   onClick={() => handleCreateConversation(f?._id)}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-base-200/50hover:bg-base-200 cursor-pointer transition-all border border-transparent hover:border-primary/20 group"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-base-200 hover:bg-base-200/50 cursor-pointer transition-all border border-transparent hover:border-primary/20 group"
                 >
                   <UserAvatar type="sidebar" name={f?.fullName} />
                   <div className="flex-1 min-w-0">
@@ -85,10 +85,10 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
             )}
           </div>
         </div>
-      </div>
+      </form>
 
       {/* Backdrop */}
-      <div className="modal-backdrop bg-black/50" onClick={onClose} />
+        <div className="modal-backdrop bg-black/50" onClick={onClose} />
     </div>
   );
 };

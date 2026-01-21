@@ -11,19 +11,20 @@ import passport from "passport";
 import { app, server } from "./socket/server.js";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
+import helmet from "helmet";
 app.use(passport.initialize());
+app.use(helmet());
 const allowedOrigins = ["http://localhost:3000", "http://localhost:5173"];
 app.use(
   cors({
     origin: function (origin, callback) {
-      // cho phép request từ các origin có trong danh sách hoặc từ tool không có origin (Postman, cURL)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // nếu cần gửi cookie, auth header
+    credentials: true,
   })
 );
 app.use(express.json());

@@ -116,7 +116,7 @@ export const getConversation = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const { conversationId } = req.params;
-    const { limit = 50, cursor } = req.query;
+    const { limit = 10, cursor } = req.query;
     const query = { conversationId };
     if (cursor) {
       query.createdAt = { $lt: new Date(cursor) };

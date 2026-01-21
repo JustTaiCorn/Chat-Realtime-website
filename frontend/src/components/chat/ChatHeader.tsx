@@ -37,7 +37,7 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          {chat?.type === "direct" ? (
+          {currentChat.type === "direct" ? (
             <UserAvatar
               type={"sidebar"}
               name={otherParticipant?.fullName}
@@ -57,15 +57,18 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
           {/* User info */}
           <div>
             <h3 className="font-semibold text-primary">
-              {chat?.type === "direct"
+              {currentChat.type === "direct"
                 ? otherParticipant?.fullName
-                : currentChat.group.name}
+                : currentChat.group?.name || "Unnamed Group"}
             </h3>
           </div>
         </div>
 
         {/* Close button */}
-        <button onClick={() => setActiveConversation(null)} className="btn btn-ghost btn-circle">
+        <button
+          onClick={() => setActiveConversation(null)}
+          className="btn btn-ghost btn-circle"
+        >
           <X />
         </button>
       </div>

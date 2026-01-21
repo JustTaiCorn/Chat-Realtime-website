@@ -22,7 +22,7 @@ export default function ProfilePage() {
     };
     reader.readAsDataURL(file);
     try {
-      await updateProfile({file});
+      await updateProfile({ file });
     } catch (error) {
       console.log(error);
     }
@@ -45,21 +45,21 @@ export default function ProfilePage() {
         <div className="bg-base-300 rounded-xl p-6 space-y-8 mt-2">
           <div className="space-y-6">
             <div className="space-y-1.5">
-              <div className="text-xl text-zinc-400 flex items-center gap-2">
+              <label className="label flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Full Name
-              </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
+              </label>
+              <p className="px-4 py-2 bg-base-200 rounded-lg border">
                 {authUser?.fullName}
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-xl text-zinc-400 flex items-center gap-2">
+              <label className=" label  flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email Address
-              </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
+              </label>
+              <p className="px-4 py-2 bg-base-200 rounded-lg border">
                 {authUser?.email}
               </p>
             </div>
@@ -76,7 +76,7 @@ export default function ProfilePage() {
           <div className="flex flex-col ">
             <div className="flex justify-between flex-row">
               <span>Trạng thái tài khoản</span>
-              <span className="text-green-500">Active</span>
+              <span className="text-green-500 badge">Active</span>
             </div>
           </div>
         </div>

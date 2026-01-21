@@ -1,13 +1,16 @@
 import express from "express";
 import {
-    checkAuth,
-    facebookAuth,
-    googleAuthCallback,
-    login,
-    logout,
-    refreshToken, searchUsers,
-    signup,
-    updateProfile,
+  checkAuth,
+  facebookAuth,
+  googleAuthCallback,
+  forgotPassword,
+  login,
+  logout,
+  refreshToken,
+  resetPassword,
+  searchUsers,
+  signup,
+  updateProfile,
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import upload from "../middleware/upload.js";
@@ -19,6 +22,9 @@ router.post("/signup", signup);
 router.post("/login", login);
 
 router.post("/logout", logout);
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 router.post("/refresh", refreshToken);
 
@@ -42,6 +48,6 @@ router.get(
   }),
   googleAuthCallback
 );
-router.get("/search", protectRoute, searchUsers );
+router.get("/search", protectRoute, searchUsers);
 router.get("/facebook", facebookAuth);
 export default router;

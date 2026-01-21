@@ -1,26 +1,27 @@
 import { useChatStore } from "../../zustands/useChatStore.ts";
 import MessageItem from "./MessageItem.tsx";
 import NoChat from "./Nochat.tsx";
+import MessageSkeleton from "../skeleton/MessageSkeleton.tsx";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {useSocketStore} from "@/zustands/useSocketStore.ts";
+import { useSocketStore } from "@/zustands/useSocketStore.ts";
 export const ChatWindowBody = () => {
   const {
     activeConversationId,
     conversations,
     messages: allMessages,
     fetchMessages,
+    MessageLoading,
   } = useChatStore();
   const [lastMessageStatus, setLastMessageStatus] = useState<
     "delivered" | "seen"
   >("delivered");
-    const { onlineUsers } = useSocketStore();
+  const { onlineUsers } = useSocketStore();
   const messages = allMessages[activeConversationId || ""]?.items || [];
   const reverseMessages = [...messages].reverse();
   const hasMore = allMessages[activeConversationId || ""]?.hasMore || false;
   const selectedConversation =
-    conversations.find((c) => c._id === activeConversationId)
-      || null;
+    conversations.find((c) => c._id === activeConversationId) || null;
   console.log("selectedConversation", selectedConversation);
   const key = `chat_scroll_${activeConversationId}`;
   const messageRef = useRef<HTMLDivElement>(null);
@@ -38,23 +39,23 @@ export const ChatWindowBody = () => {
       messageRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [messages, activeConversationId]);
-useLayoutEffect(() => {
-  if (!containerRef.current) return;
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
 
-  const savedScroll = sessionStorage.getItem(key);
-  if (!savedScroll) return;
+    const savedScroll = sessionStorage.getItem(key);
+    if (!savedScroll) return;
 
-  try {
-    const { scrollTop } = JSON.parse(savedScroll);
-    requestAnimationFrame(() => {
-      if (containerRef.current) {
-        containerRef.current.scrollTop = scrollTop;
-      }
-    });
-  } catch (err) {
-    console.error("Failed to parse saved scroll:", err);
-  }
-}, [messages]);
+    try {
+      const { scrollTop } = JSON.parse(savedScroll);
+      requestAnimationFrame(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = scrollTop;
+        }
+      });
+    } catch (err) {
+      console.error("Failed to parse saved scroll:", err);
+    }
+  }, [messages]);
 
   const fetchMoreMessages = async () => {
     if (!activeConversationId) {
@@ -76,6 +77,11 @@ useLayoutEffect(() => {
   if (!selectedConversation) {
     return <NoChat />;
   }
+
+  if (MessageLoading && messages.length === 0) {
+    return <MessageSkeleton />;
+  }
+
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -89,6 +95,7 @@ useLayoutEffect(() => {
         <div
           ref={containerRef}
           id="scrollableDiv"
+          onScroll={handleScroll}
           className="flex flex-col-reverse overflow-x-hidden overflow-y-auto "
         >
           <div ref={messageRef}></div>
@@ -107,7 +114,7 @@ useLayoutEffect(() => {
           >
             {reverseMessages.map((message, index) => (
               <MessageItem
-                  onlineUsers={onlineUsers}
+                onlineUsers={onlineUsers}
                 key={message._id || index}
                 message={message}
                 index={index}

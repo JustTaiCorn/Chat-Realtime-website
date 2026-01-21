@@ -15,15 +15,18 @@ const MessageInput = ({
   const { sendDirectMessage, sendGroupMessage } = useChatStore();
   const [value, setValue] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!authUser) return null;
 
   const sendMessage = async () => {
-    if (!value.trim() && !imagePreview) return;
+    if (!value.trim() && !selectedFile) return;
     const currValue = value;
+    const currFile = selectedFile;
     setValue("");
     setImagePreview(null);
+    setSelectedFile(null);
 
     try {
       if (selectedConversation.type === "direct") {
@@ -31,10 +34,18 @@ const MessageInput = ({
           (p) => p._id !== authUser._id
         );
         if (otherUser) {
-          await sendDirectMessage(otherUser._id, currValue);
+          await sendDirectMessage(
+            otherUser._id,
+            currValue,
+            currFile || undefined
+          );
         }
       } else {
-        await sendGroupMessage(selectedConversation._id, currValue);
+        await sendGroupMessage(
+          selectedConversation._id,
+          currValue,
+          currFile || undefined
+        );
       }
     } catch (error) {
       console.error(error);
@@ -52,12 +63,19 @@ const MessageInput = ({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -71,7 +89,7 @@ const MessageInput = ({
               className="w-20 h-20 object-cover rounded-lg border border-base-300"
             />
             <button
-              onClick={() => setImagePreview(null)}
+              onClick={removeImage}
               className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-base-300 rounded-full flex items-center justify-center hover:bg-base-content hover:text-base-100 transition-colors"
             >
               <span className="text-xs">×</span>
@@ -107,7 +125,7 @@ const MessageInput = ({
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyPress}
           />
-          <div className="absolute right-2 flex items-center">
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
             <EmojiPicker
               onChange={(emoji) => setValue((prev) => prev + emoji)}
             />
@@ -116,8 +134,8 @@ const MessageInput = ({
 
         <button
           onClick={sendMessage}
-          disabled={!value.trim() && !imagePreview}
-          className="btn btn-primary btn-circle"
+          disabled={!value.trim() && !selectedFile}
+          className="btn btn-primary btn-circle hover:scale-105 transition-smooth"
         >
           <Send size={20} />
         </button>

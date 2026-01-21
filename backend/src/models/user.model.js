@@ -5,10 +5,10 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     fullName: { type: String, required: true },
     password: { type: String, minlength: 6 },
-      bio:{ type: String, default: "" },
-      phone: { type: String, default: "" },
+    bio: { type: String, default: "" },
+    phone: { type: String, default: "" },
     profilePicture: { type: String, default: "" },
-      profilePictureId: { type: String, default: "" },
+    profilePictureId: { type: String, default: "" },
     isAdmin: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema(
       enum: ["local", "google", "facebook"],
       default: "local",
     },
+    resetPasswordToken: String,
+    resetPasswordExpiresAt: Date,
   },
   { timestamps: true }
 );

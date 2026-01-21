@@ -5,6 +5,10 @@ import User from "../models/user.model.js";
 import Session from "../models/session.model.js";
 import { storage, ID } from "../lib/appwrite.js";
 import { InputFile } from "node-appwrite/file";
+import {
+  sendPasswordResetEmail,
+  sendResetSuccessEmail,
+} from "../lib/mail/emails.js";
 
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; // 14 days
@@ -316,5 +320,69 @@ export const searchUsers = async (req, res) => {
   } catch (error) {
     console.log("Error in searchUsers controller:", error.message);
     res.status(500).json({ message: "Không tìm Thấy người dùng " });
+  }
+};
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiresAt = resetTokenExpiresAt;
+
+    await user.save();
+
+    const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    await sendPasswordResetEmail(user.email, resetURL);
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset link sent to your email",
+    });
+  } catch (error) {
+    console.log("Error in forgotPassword ", error);
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired reset token" });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+
+    await sendResetSuccessEmail(user.email);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset successful" });
+  } catch (error) {
+    console.log("Error in resetPassword ", error);
+    res.status(400).json({ success: false, message: error.message });
   }
 };

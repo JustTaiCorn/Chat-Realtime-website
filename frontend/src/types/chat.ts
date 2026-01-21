@@ -49,7 +49,7 @@ export interface Message {
   conversationId: string;
   senderId: string;
   content: string | null;
-  imgUrl?: string | null;
+  imageUrl?: string | null;
   updatedAt?: string | null;
   createdAt: string;
   isOwn?: boolean;

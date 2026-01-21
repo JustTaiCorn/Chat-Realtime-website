@@ -10,6 +10,7 @@ export const updateConversationAfterCreateMessage = (
       _id: message._id,
       content: message.content,
       senderId,
+      imageUrl: message.imageUrl,
       createdAt: message.createdAt,
     },
   });

@@ -5,6 +5,8 @@ import {
   updateConversationAfterCreateMessage,
 } from "../utils/MessageHelper.js";
 import { io } from "../socket/server.js";
+import { storage, ID } from "../lib/appwrite.js";
+import { InputFile } from "node-appwrite/file";
 
 // export const getUsersForChat = async (req, res) => {
 //   try {
@@ -51,7 +53,7 @@ export const sendDirectMessage = async (req, res) => {
     const { recipientId, content, conversationId } = req.body;
     const senderId = req.user._id;
     let conversation;
-    if (!content) {
+    if (!content && !req.file) {
       return res.status(400).json({
         success: false,
         message: "Nội dung tin nhắn không được để trống",
@@ -71,11 +73,27 @@ export const sendDirectMessage = async (req, res) => {
         unreadCounts: new Map(),
       });
     }
+    const file = req.file;
+    let imageUrl = null;
+    if (file) {
+      try {
+        const fileId = ID.unique();
+        const uploadedFile = await storage.createFile(
+          process.env.APPWRITE_BUCKET_ID,
+          fileId,
+          InputFile.fromBuffer(file.buffer, file.originalname)
+        );
+        imageUrl = `https://nyc.cloud.appwrite.io/v1/storage/buckets/${process.env.APPWRITE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${process.env.APPWRITE_PROJECT_ID}`;
+      } catch (uploadError) {
+        console.log("Error uploading to Appwrite:", uploadError.message);
+      }
+    }
+
     const message = await Message.create({
       conversationId: conversation._id,
       senderId,
       content,
-      receiver: recipientId,
+      imageUrl,
     });
     updateConversationAfterCreateMessage(conversation, message, senderId);
     await conversation.save();
@@ -98,7 +116,7 @@ export const sendGroupMessage = async (req, res) => {
     const { conversationId, content } = req.body;
     const senderId = req.user._id;
     const conversation = req.conversation;
-    if (!content) {
+    if (!content && !req.file) {
       return res
         .status(400)
         .json({ success: false, message: "Không có nội dung để gửi" });
@@ -136,10 +154,28 @@ export const sendGroupMessage = async (req, res) => {
     // }
     //
     // // Tạo message mới
+    const file = req.file;
+    let imageUrl = null;
+    if (file) {
+      try {
+        const fileId = ID.unique();
+        const uploadedFile = await storage.createFile(
+          process.env.APPWRITE_BUCKET_ID,
+          fileId,
+          InputFile.fromBuffer(file.buffer, file.originalname)
+        );
+        imageUrl = `https://nyc.cloud.appwrite.io/v1/storage/buckets/${process.env.APPWRITE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${process.env.APPWRITE_PROJECT_ID}`;
+      } catch (uploadError) {
+        console.log("Error uploading to Appwrite:", uploadError.message);
+      }
+    }
+    //
+    // // Tạo message mới
     const newMessage = new Message({
       conversationId,
       content: content || "",
       senderId,
+      imageUrl,
     });
     await newMessage.save();
     updateConversationAfterCreateMessage(conversation, newMessage, senderId);

@@ -27,28 +27,34 @@ export const chatService = {
   async sendDirectMessage(
     receiverId: string,
     content: string = "",
-    imageUrl?: string,
+    image?: File,
     conversationId?: string
   ): Promise<Message> {
-    const response = await privateClient.post("/messages/direct", {
-      recipientId: receiverId,
-      content,
-      imageUrl,
-      conversationId,
+    const formData = new FormData();
+    formData.append("recipientId", receiverId);
+    formData.append("content", content);
+    if (image) formData.append("image", image);
+    if (conversationId) formData.append("conversationId", conversationId);
+
+    const response = await privateClient.post("/messages/direct", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data.messages;
+    return response.data.message;
   },
   async sendGroupMessage(
     conversationId: string,
     content: string = "",
-    imageUrl?: string
+    image?: File
   ): Promise<Message> {
-    const response = await privateClient.post("/messages/group", {
-      conversationId,
-      content,
-      imageUrl,
+    const formData = new FormData();
+    formData.append("conversationId", conversationId);
+    formData.append("content", content);
+    if (image) formData.append("image", image);
+
+    const response = await privateClient.post("/messages/group", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data.messages;
+    return response.data.newMessage;
   },
   async markAsSeen(conversationId: string): Promise<void> {
     const res = await privateClient.post(
