@@ -153,7 +153,9 @@ export default function SignUpPage() {
           <div className="text-center my-6">
             <span className="text-base-content/40">or</span>
           </div>
-          <div><LoginOauth2/></div>
+          <div><LoginOauth2 loginWithGoogle={function(): Promise<void> {
+                      throw new Error("Function not implemented.");
+                  } }/></div>
           <div className="mt-4 text-center">
             <p className="text-sm text-base-content/60">
               Already have an account?{" "}

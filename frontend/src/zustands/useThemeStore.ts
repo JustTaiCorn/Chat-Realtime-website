@@ -1,9 +1,14 @@
 import { create } from "zustand";
 
-export const useThemeStore = create((set) => ({
-    theme: localStorage.getItem("chat-theme") || "coffee",
-    setTheme: (theme   : string):void => {
-        localStorage.setItem("chat-theme", theme);
-        set({ theme });
-    },
+interface ThemeState {
+  theme: string;
+  setTheme: (theme: string) => void;
+}
+
+export const useThemeStore = create<ThemeState>((set) => ({
+  theme: localStorage.getItem("chat-theme") || "coffee",
+  setTheme: (theme: string) => {
+    localStorage.setItem("chat-theme", theme);
+    set({ theme });
+  },
 }));

@@ -5,7 +5,7 @@ import { useChatStore } from "../zustands/useChatStore.ts";
 import ChatWindowSkeleton from "../components/skeleton/ChatWindowSkeleton.tsx";
 
 export default function HomePage() {
-  const { activeConversationId, MessageLoading, messages, conversations } =
+  const { activeConversationId, MessageLoading, conversations } =
     useChatStore();
   const selectedConversation =
     conversations.find((c) => c._id === activeConversationId) || null;

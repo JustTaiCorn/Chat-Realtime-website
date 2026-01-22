@@ -4,7 +4,7 @@ import type { FriendState } from "@/types/store";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 
-export const useFriendStore = create<FriendState>((set, get) => ({
+export const useFriendStore = create<FriendState>((set, ) => ({
   loading: false,
   friends: [],
   receivedList: [],
