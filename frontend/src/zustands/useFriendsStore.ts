@@ -44,7 +44,7 @@ export const useFriendStore = create<FriendState>((set, get) => ({
   acceptFriendRequest: async (requestID: string) => {
     try {
       set({ loading: true });
-      const res = await friendService.acceptFriendRequest(requestID);
+        await friendService.acceptFriendRequest(requestID);
       toast.success("Đã chấp nhận yêu cầu kết bạn");
       set((state) => ({
         receivedList: state.receivedList.filter(
