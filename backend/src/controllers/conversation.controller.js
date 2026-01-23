@@ -123,7 +123,10 @@ export const getMessages = async (req, res) => {
     }
     let messages = await Message.find(query)
       .sort({ createdAt: -1 })
-      .limit(Number(limit) + 1);
+      .limit(Number(limit) + 1)
+        .populate("replyTo", "content senderId imageUrl")
+        .populate("replyTo.senderId", "fullName profilePicture")
+        .populate("reactions.userId", "fullName profilePicture");;
     let nextCursor = null;
     if (messages.length > Number(limit)) {
       const nextMessage = messages[messages.length - 1];

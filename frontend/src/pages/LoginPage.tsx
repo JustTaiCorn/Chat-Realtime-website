@@ -30,7 +30,6 @@ export default function LoginPage() {
       try {
         await login(data);
       } catch (error) {
-        // Error đã được handle trong useAuthStore
         console.log("Signup failed:", error);
       }
     },
@@ -105,13 +104,21 @@ export default function LoginPage() {
                   {showPassword ? <Eye /> : <EyeOff />}
                 </button>
               </div>
+              <div className="flex justify-end mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-primary hover:underline transition-colors"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
             </div>
             <button
               type="submit"
               className="btn btn-primary w-full mt-6"
-              disabled={isSubmitting ||loading}
+              disabled={isSubmitting || loading}
             >
-              {isSubmitting ||loading ? (
+              {isSubmitting || loading ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
                   <span>Logging In...</span>

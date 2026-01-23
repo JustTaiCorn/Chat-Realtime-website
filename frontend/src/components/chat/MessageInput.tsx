@@ -12,7 +12,8 @@ const MessageInput = ({
   selectedConversation: Conversation;
 }) => {
   const { authUser } = useAuthStore();
-  const { sendDirectMessage, sendGroupMessage } = useChatStore();
+  const { sendDirectMessage, sendGroupMessage, replyToMessage } =
+    useChatStore();
   const [value, setValue] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -31,20 +32,22 @@ const MessageInput = ({
     try {
       if (selectedConversation.type === "direct") {
         const otherUser = selectedConversation.participants.find(
-          (p) => p._id !== authUser._id
+          (p) => p._id !== authUser._id,
         );
         if (otherUser) {
           await sendDirectMessage(
             otherUser._id,
             currValue,
-            currFile || undefined
+            currFile || undefined,
+            replyToMessage?._id,
           );
         }
       } else {
         await sendGroupMessage(
           selectedConversation._id,
           currValue,
-          currFile || undefined
+          currFile || undefined,
+          replyToMessage?._id,
         );
       }
     } catch (error) {

@@ -17,20 +17,24 @@ export interface ChatState {
   MessageLoading: boolean;
   ConversationLoading: boolean;
   loading: boolean;
+  replyToMessage: Message | null;
   reset: () => void;
   setActiveConversation: (conversationId: string | null) => void;
+  setReplyToMessage: (message: Message | null) => void;
   fetchConversations: () => void;
   fetchMessages: (conversationId: string, cursor?: string) => void;
   sendDirectMessage: (
     receiverId: string,
     content: string,
     image?: File,
-    conversationId?: string
+    conversationId?: string,
+    replyToMessageId?: string,
   ) => Promise<void>;
   sendGroupMessage: (
     conversationId: string,
     content: string,
-    image?: File
+    image?: File,
+    replyToMessageId?: string,
   ) => Promise<void>;
   addMessageToConversation: (message: Message) => Promise<void>;
   updateConversation: (conversation: unknown) => void;
@@ -39,8 +43,9 @@ export interface ChatState {
   createConversation: (
     type: "direct" | "group",
     memberIds: string[],
-    name: string
+    name: string,
   ) => Promise<void>;
+  handleReaction: (messageId: string, emoji: string) => Promise<void>;
 }
 
 export interface SocketState {

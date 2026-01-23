@@ -34,3 +34,10 @@ export const emitNewMessage = (conversation, message, io) => {
     unreadCounts: Object.fromEntries(conversation.unreadCounts),
   });
 };
+export const emitNewReaction = ( message, reactions, io) => {
+  io.to(message.conversationId.toString()).emit("new-reaction", {
+    success: true,
+      messageId: message._id,
+    reactions,
+  });
+}

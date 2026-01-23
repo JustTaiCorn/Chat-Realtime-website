@@ -1,8 +1,8 @@
 import express from "express";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import {
-  sendDirectMessage,
-  sendGroupMessage,
+    sendDirectMessage,
+    sendGroupMessage, toggleReaction,
 } from "../controllers/message.controller.js";
 import upload from "../middleware/upload.js";
 import {
@@ -24,17 +24,6 @@ router.post(
   checkGroupShip,
   sendGroupMessage
 );
-
-// router.get("/users", protectRoute, getUsersForChat);
-// router.get("/:id", protectRoute, getMessages);
-// router.post(
-//   "/send/:id",
-//   protectRoute,
-//   upload.fields([
-//     { name: "image", maxCount: 1 },
-//     { name: "file", maxCount: 1 },
-//   ]),
-//   sendMessage
-// );
+router.post("/:messageId/reactions", protectRoute, toggleReaction);
 
 export default router;

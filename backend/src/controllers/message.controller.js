@@ -1,56 +1,18 @@
 import Message from "../models/message.model.js";
 import Conversation from "../models/conversation.model.js";
 import {
-  emitNewMessage,
-  updateConversationAfterCreateMessage,
+    emitNewMessage, emitNewReaction,
+    updateConversationAfterCreateMessage,
 } from "../utils/MessageHelper.js";
 import { io } from "../socket/server.js";
 import { storage, ID } from "../lib/appwrite.js";
 import { InputFile } from "node-appwrite/file";
 
-// export const getUsersForChat = async (req, res) => {
-//   try {
-//     const loggedInUserId = req.user._id;
-//     const users = await User.find({ _id: { $ne: loggedInUserId } }).select(
-//       "-password"
-//     );
-//     res.status(200).json({
-//       success: true,
-//       users,
-//     });
-//   } catch (error) {
-//     console.log("Error in getUsersForChat controller:", error.message);
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//     });
-//   }
-// };
-//
-// export const getMessages = async (req, res) => {
-//   try {
-//     const { id: userToChatWith } = req.params;
-//     const myId = req.user._id;
-//
-//     const messages = await Message.find({
-//       $or: [
-//         { sender: myId, receiver: userToChatWith },
-//         { sender: userToChatWith, receiver: myId },
-//       ],
-//     });
-//     res.status(200).json({ success: true, messages });
-//   } catch (error) {
-//     console.log("Error in getMessages controller:", error.message);
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//     });
-//   }
-// };
+
 
 export const sendDirectMessage = async (req, res) => {
   try {
-    const { recipientId, content, conversationId } = req.body;
+    const { recipientId, content, conversationId,replyToMessageId } = req.body;
     const senderId = req.user._id;
     let conversation;
     if (!content && !req.file) {
@@ -94,7 +56,12 @@ export const sendDirectMessage = async (req, res) => {
       senderId,
       content,
       imageUrl,
+        replyTo: replyToMessageId || null
     });
+      if (replyToMessageId) {
+          await message.populate("replyTo", "content senderId imageUrl");
+          await message.populate("replyTo.senderId", "fullName profilePicture");
+      }
     updateConversationAfterCreateMessage(conversation, message, senderId);
     await conversation.save();
     emitNewMessage(conversation, message, io);
@@ -113,7 +80,7 @@ export const sendDirectMessage = async (req, res) => {
 
 export const sendGroupMessage = async (req, res) => {
   try {
-    const { conversationId, content } = req.body;
+    const { conversationId, content,replyToMessageId } = req.body;
     const senderId = req.user._id;
     const conversation = req.conversation;
     if (!content && !req.file) {
@@ -121,39 +88,6 @@ export const sendGroupMessage = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Không có nội dung để gửi" });
     }
-    //
-    // // Upload image nếu có
-    // if (imageFile) {
-    //     const imageId = ID.unique();
-    //     const uploadedImage = await storage.createFile(
-    //         process.env.APPWRITE_BUCKET_ID,
-    //         imageId,
-    //         imageFile.buffer,
-    //         imageFile.originalname
-    //     );
-    //     imageUrl = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.APPWRITE_BUCKET_ID}/files/${uploadedImage.$id}/view?project=${process.env.APPWRITE_PROJECT_ID}`;
-    // }
-    //
-    // // Upload file nếu có
-    // if (attachmentFile) {
-    //     const fileId = ID.unique();
-    //     const uploadedFile = await storage.createFile(
-    //         process.env.APPWRITE_BUCKET_ID,
-    //         fileId,
-    //         attachmentFile.buffer,
-    //         attachmentFile.originalname
-    //     );
-    //     const fileUrl = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.APPWRITE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${process.env.APPWRITE_PROJECT_ID}`;
-    //
-    //     fileData = {
-    //         url: fileUrl,
-    //         name: uploadedFile.name,
-    //         type: uploadedFile.mimeType,
-    //         size: uploadedFile.sizeOriginal,
-    //     };
-    // }
-    //
-    // // Tạo message mới
     const file = req.file;
     let imageUrl = null;
     if (file) {
@@ -176,8 +110,13 @@ export const sendGroupMessage = async (req, res) => {
       content: content || "",
       senderId,
       imageUrl,
+        replyTo: replyToMessageId || null
     });
     await newMessage.save();
+      if (replyToMessageId) {
+          await newMessage.populate("replyTo", "content senderId imageUrl");
+          await newMessage.populate("replyTo.senderId", "fullName profilePicture");
+      }
     updateConversationAfterCreateMessage(conversation, newMessage, senderId);
     await conversation.save();
     emitNewMessage(conversation, newMessage, io);
@@ -194,8 +133,42 @@ export const sendGroupMessage = async (req, res) => {
     });
   }
 };
+export const toggleReaction = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { emoji } = req.body;
+    const userId = req.user._id;
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Tin nhắn không tồn tại" });
+    }
+      const existingReactionIndex = message.reactions.findIndex(
+          (r) => r.userId.toString() === userId.toString() && r.emoji === emoji
+      );
 
-export default {
-  sendGroupMessage,
-  sendDirectMessage,
+      if (existingReactionIndex > -1) {
+          message.reactions.splice(existingReactionIndex, 1);
+      } else {
+          message.reactions.push({
+              userId,
+              emoji,
+              createdAt: new Date(),
+          });
+      }
+      await message.save();
+      await message.populate("reactions.userId", "fullName profilePicture");
+        emitNewReaction( message, message.reactions, io);
+      res.status(200).json({
+          success: true,
+          reactions: message.reactions,
+      });
+  } catch (error) {
+      console.log("Error in toggleReaction controller:", error.message);
+      res.status(500).json({
+          success: false,
+          message: "Lỗi server khi xử lý reaction",
+      });
+  }
 };

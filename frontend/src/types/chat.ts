@@ -53,4 +53,26 @@ export interface Message {
   updatedAt?: string | null;
   createdAt: string;
   isOwn?: boolean;
+    reactions?: Reaction[];
+    replyTo?: ReplyToMessage | null;
+}
+export interface Reaction {
+    _id: string;
+    userId: {
+        _id: string;
+        fullName: string;
+        profilePicture?: string | null;
+    };
+    emoji: string;
+    createdAt: string;
+}
+export interface ReplyToMessage {
+    _id: string;
+    content: string | null;
+    imageUrl?: string | null;
+    senderId: {
+        _id: string;
+        fullName: string;
+        profilePicture?: string | null;
+    };
 }

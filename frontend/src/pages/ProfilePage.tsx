@@ -47,7 +47,7 @@ export default function ProfilePage() {
             <div className="space-y-1.5">
               <label className="label flex items-center gap-2">
                 <User className="w-4 h-4" />
-                Full Name
+                Họ và tên
               </label>
               <p className="px-4 py-2 bg-base-200 rounded-lg border">
                 {authUser?.fullName}
@@ -57,7 +57,7 @@ export default function ProfilePage() {
             <div className="space-y-1.5">
               <label className=" label  flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                Email Address
+                Địa chỉ email
               </label>
               <p className="px-4 py-2 bg-base-200 rounded-lg border">
                 {authUser?.email}

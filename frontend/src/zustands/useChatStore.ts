@@ -16,9 +16,12 @@ export const useChatStore = create<ChatState>()(
       ConversationLoading: false,
       MessageLoading: false,
       loading: false,
+      replyToMessage: null,
 
       setActiveConversation: (conversationId: string | null) =>
-        set({ activeConversationId: conversationId }),
+        set({ activeConversationId: conversationId, replyToMessage: null }),
+      setReplyToMessage: (message: Message | null) =>
+        set({ replyToMessage: message }),
       fetchConversations: async () => {
         try {
           set({ ConversationLoading: true });
@@ -39,6 +42,7 @@ export const useChatStore = create<ChatState>()(
           ConversationLoading: false,
           MessageLoading: false,
           loading: false,
+          replyToMessage: null,
         });
       },
       fetchMessages: async (conversationId: string) => {
@@ -58,7 +62,7 @@ export const useChatStore = create<ChatState>()(
         try {
           const { messages, cursor } = await chatService.fetchMessages(
             convoId,
-            nextCursor
+            nextCursor,
           );
           const processed = messages.map((message) => ({
             ...message,
@@ -89,7 +93,8 @@ export const useChatStore = create<ChatState>()(
       sendDirectMessage: async (
         receiverId: string,
         content: string,
-        image?: File
+        image?: File,
+        replyToMessageId?: string,
       ) => {
         try {
           const { activeConversationId } = get();
@@ -97,9 +102,11 @@ export const useChatStore = create<ChatState>()(
             receiverId,
             content,
             image,
-            activeConversationId || ""
+            activeConversationId || "",
+            replyToMessageId,
           );
           set((state) => ({
+            replyToMessage: null,
             conversations: state.conversations.map((conversation) => {
               return conversation._id === activeConversationId
                 ? {
@@ -118,11 +125,18 @@ export const useChatStore = create<ChatState>()(
       sendGroupMessage: async (
         conversationId: string,
         content: string,
-        image?: File
+        image?: File,
+        replyToMessageId?: string,
       ) => {
         try {
-          await chatService.sendGroupMessage(conversationId, content, image);
+          await chatService.sendGroupMessage(
+            conversationId,
+            content,
+            image,
+            replyToMessageId,
+          );
           set((state) => ({
+            replyToMessage: null,
             conversations: state.conversations.map((conversation) => {
               return conversation._id === get().activeConversationId
                 ? {
@@ -175,7 +189,7 @@ export const useChatStore = create<ChatState>()(
       addConversation: (conversation: Conversation) => {
         set((state) => {
           const exists = state.conversations.find(
-            (c) => c._id === conversation._id
+            (c) => c._id === conversation._id,
           );
           return {
             conversations: exists
@@ -191,7 +205,7 @@ export const useChatStore = create<ChatState>()(
           const conversation = await chatService.createConversation(
             type,
             memberIds,
-            name
+            name,
           );
           get().addConversation(conversation);
           useSocketStore
@@ -210,7 +224,7 @@ export const useChatStore = create<ChatState>()(
           conversations: state.conversations.map((conv) =>
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
-            conv._id === conversation._id ? { ...conv, ...conversation } : conv
+            conv._id === conversation._id ? { ...conv, ...conversation } : conv,
           ),
         }));
       },
@@ -221,7 +235,7 @@ export const useChatStore = create<ChatState>()(
           const { activeConversationId, conversations } = get();
           if (!authUser || !activeConversationId) return;
           const convo = conversations.find(
-            (c) => c._id === activeConversationId
+            (c) => c._id === activeConversationId,
           );
 
           if (!convo) return;
@@ -239,11 +253,20 @@ export const useChatStore = create<ChatState>()(
                       [authUser._id]: 0,
                     },
                   }
-                : c
+                : c,
             ),
           }));
         } catch (e) {
           console.error("Lỗi khi đánh dấu đã xem tin nhắn:", e);
+        }
+      },
+      handleReaction: async (messageId: string, emoji: string) => {
+        try {
+          await chatService.toggleReaction(messageId, emoji);
+        } catch (e) {
+          console.error("Lỗi khi đánh dấu đã xem tin nhắn:", e);
+          toast.error("Không thể thêm phản hồi");
+          throw e;
         }
       },
     }),
@@ -252,6 +275,6 @@ export const useChatStore = create<ChatState>()(
       partialize: (state) => ({
         conversations: state.conversations,
       }),
-    }
-  )
+    },
+  ),
 );

@@ -37,4 +37,16 @@ export const authService = {
     });
     return res.data;
   },
+
+  forgotPassword: async (email: string) => {
+    const res = await privateClient.post("/auth/forgot-password", { email });
+    return res.data;
+  },
+
+  resetPassword: async (token: string, password: string) => {
+    const res = await privateClient.post(`/auth/reset-password/${token}`, {
+      password,
+    });
+    return res.data;
+  },
 };

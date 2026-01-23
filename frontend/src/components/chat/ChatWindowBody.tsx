@@ -5,6 +5,8 @@ import MessageSkeleton from "../skeleton/MessageSkeleton.tsx";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSocketStore } from "@/zustands/useSocketStore.ts";
+import type { Message } from "@/types/chat.ts";
+import { ReplyPreview } from "./ReplyPreview.tsx";
 export const ChatWindowBody = () => {
   const {
     activeConversationId,
@@ -12,6 +14,9 @@ export const ChatWindowBody = () => {
     messages: allMessages,
     fetchMessages,
     MessageLoading,
+    handleReaction,
+    replyToMessage,
+    setReplyToMessage,
   } = useChatStore();
   const [lastMessageStatus, setLastMessageStatus] = useState<
     "delivered" | "seen"
@@ -22,7 +27,6 @@ export const ChatWindowBody = () => {
   const hasMore = allMessages[activeConversationId || ""]?.hasMore || false;
   const selectedConversation =
     conversations.find((c) => c._id === activeConversationId) || null;
-  console.log("selectedConversation", selectedConversation);
   const key = `chat_scroll_${activeConversationId}`;
   const messageRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,9 +75,15 @@ export const ChatWindowBody = () => {
 
   const handleScroll = () => {
     if (!containerRef.current) return;
-    sessionStorage.setItem(key, JSON.stringify(containerRef.current.scrollTop));
+    sessionStorage.setItem(
+      key,
+      JSON.stringify({ scrollTop: containerRef.current.scrollTop }),
+    );
   };
 
+  const handleReplyToMessage = (message: Message) => {
+    setReplyToMessage(message);
+  };
   if (!selectedConversation) {
     return <NoChat />;
   }
@@ -110,6 +120,7 @@ export const ChatWindowBody = () => {
               overflowX: "visible",
               display: "flex",
               flexDirection: "column-reverse",
+              gap: "10px",
             }}
           >
             {reverseMessages.map((message, index) => (
@@ -121,10 +132,18 @@ export const ChatWindowBody = () => {
                 messages={reverseMessages}
                 selectedConversation={selectedConversation}
                 lastMessageStatus={lastMessageStatus}
+                onReplyToMessage={handleReplyToMessage}
+                onReaction={handleReaction}
               />
             ))}
           </InfiniteScroll>
         </div>
+        {replyToMessage && (
+          <ReplyPreview
+            replyTo={replyToMessage}
+            onCancel={() => setReplyToMessage(null)}
+          />
+        )}
       </div>
     </>
   );

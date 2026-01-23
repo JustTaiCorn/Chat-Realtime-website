@@ -9,7 +9,6 @@ const LIMIT = 50;
 export const chatService = {
   async fetchConversations(): Promise<ConversationResponse> {
     const response = await privateClient.get("/conversations");
-    console.log("Conversations response:", response.data);
     return response.data;
   },
   async fetchMessages(
@@ -28,14 +27,15 @@ export const chatService = {
     receiverId: string,
     content: string = "",
     image?: File,
-    conversationId?: string
+    conversationId?: string,
+    replyToMessageId?: string
   ): Promise<Message> {
     const formData = new FormData();
     formData.append("recipientId", receiverId);
     formData.append("content", content);
     if (image) formData.append("image", image);
     if (conversationId) formData.append("conversationId", conversationId);
-
+    if(replyToMessageId) formData.append("replyToMessageId", replyToMessageId);
     const response = await privateClient.post("/messages/direct", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -44,13 +44,14 @@ export const chatService = {
   async sendGroupMessage(
     conversationId: string,
     content: string = "",
-    image?: File
+    image?: File,
+    replyToMessageId?: string
   ): Promise<Message> {
     const formData = new FormData();
     formData.append("conversationId", conversationId);
     formData.append("content", content);
     if (image) formData.append("image", image);
-
+    if(replyToMessageId) formData.append("replyToMessageId", replyToMessageId);
     const response = await privateClient.post("/messages/group", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -75,4 +76,16 @@ export const chatService = {
     });
     return res.data.conversation;
   },
+   async toggleReaction(
+    messageId: string,
+    emoji: string
+  ): Promise<void> {
+    const res = await privateClient.post(
+      `/messages/${messageId}/reactions`,
+      {
+        emoji
+      }
+    );
+    return res.data.reactions;
+  }
 };

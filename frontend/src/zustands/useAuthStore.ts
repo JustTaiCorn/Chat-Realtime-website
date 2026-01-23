@@ -44,6 +44,8 @@ interface AuthStore {
   updateProfile: (data: UpdateProfileData) => Promise<void>;
   refresh: () => Promise<void>;
   fetchMe: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (token: string, password: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -160,6 +162,38 @@ export const useAuthStore = create<AuthStore>()(
         } catch (error) {
           console.error("Error refreshing token:", error);
           get().clearState();
+          throw error;
+        } finally {
+          set({ loading: false });
+        }
+      },
+
+      forgotPassword: async (email: string) => {
+        try {
+          set({ loading: true });
+          const res = await authService.forgotPassword(email);
+          toast.success(res.message || "Link đặt lại mật khẩu đã được gửi");
+        } catch (error) {
+          const errorMessage =
+            (error as AxiosError<{ message: string }>)?.response?.data
+              ?.message || "Đã xảy ra lỗi khi gửi yêu cầu";
+          toast.error(errorMessage);
+          throw error;
+        } finally {
+          set({ loading: false });
+        }
+      },
+
+      resetPassword: async (token: string, password: string) => {
+        try {
+          set({ loading: true });
+          const res = await authService.resetPassword(token, password);
+          toast.success(res.message || "Đặt lại mật khẩu thành công");
+        } catch (error) {
+          const errorMessage =
+            (error as AxiosError<{ message: string }>)?.response?.data
+              ?.message || "Đã xảy ra lỗi khi đặt lại mật khẩu";
+          toast.error(errorMessage);
           throw error;
         } finally {
           set({ loading: false });

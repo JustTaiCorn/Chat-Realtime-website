@@ -5,6 +5,8 @@ import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import SignUpPage from "../pages/SignUpPage";
 import HomePage from "../pages/HomePage.tsx";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../zustands/useAuthStore";
@@ -82,6 +84,22 @@ const routes: Route[] = [
     element: (
       <RedirectAuthenticatedUser>
         <LoginPage />
+      </RedirectAuthenticatedUser>
+    ),
+  },
+  {
+    path: "/forgot-password",
+    element: (
+      <RedirectAuthenticatedUser>
+        <ForgotPasswordPage />
+      </RedirectAuthenticatedUser>
+    ),
+  },
+  {
+    path: "/reset-password/:token",
+    element: (
+      <RedirectAuthenticatedUser>
+        <ResetPasswordPage />
       </RedirectAuthenticatedUser>
     ),
   },
