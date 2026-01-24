@@ -13,10 +13,10 @@ export const chatService = {
   },
   async fetchMessages(
     conversationId: string,
-    cursor?: string
+    cursor?: string,
   ): Promise<MessagesPResponse> {
     const response = await privateClient.get(
-      `/conversations/${conversationId}/messages?limit=${LIMIT}&cursor=${cursor}`
+      `/conversations/${conversationId}/messages?limit=${LIMIT}&cursor=${cursor}`,
     );
     return {
       messages: response.data.messages,
@@ -28,14 +28,14 @@ export const chatService = {
     content: string = "",
     image?: File,
     conversationId?: string,
-    replyToMessageId?: string
+    replyToMessageId?: string,
   ): Promise<Message> {
     const formData = new FormData();
     formData.append("recipientId", receiverId);
     formData.append("content", content);
     if (image) formData.append("image", image);
     if (conversationId) formData.append("conversationId", conversationId);
-    if(replyToMessageId) formData.append("replyToMessageId", replyToMessageId);
+    if (replyToMessageId) formData.append("replyToMessageId", replyToMessageId);
     const response = await privateClient.post("/messages/direct", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -45,13 +45,13 @@ export const chatService = {
     conversationId: string,
     content: string = "",
     image?: File,
-    replyToMessageId?: string
+    replyToMessageId?: string,
   ): Promise<Message> {
     const formData = new FormData();
     formData.append("conversationId", conversationId);
     formData.append("content", content);
     if (image) formData.append("image", image);
-    if(replyToMessageId) formData.append("replyToMessageId", replyToMessageId);
+    if (replyToMessageId) formData.append("replyToMessageId", replyToMessageId);
     const response = await privateClient.post("/messages/group", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -59,7 +59,7 @@ export const chatService = {
   },
   async markAsSeen(conversationId: string): Promise<void> {
     const res = await privateClient.post(
-      `/conversations/${conversationId}/seen`
+      `/conversations/${conversationId}/seen`,
     );
     return res.data;
   },
@@ -67,7 +67,7 @@ export const chatService = {
   async createConversation(
     type: "direct" | "group",
     memberIds: string[],
-    name?: string
+    name?: string,
   ) {
     const res = await privateClient.post("/conversations", {
       type,
@@ -76,16 +76,19 @@ export const chatService = {
     });
     return res.data.conversation;
   },
-   async toggleReaction(
-    messageId: string,
-    emoji: string
-  ): Promise<void> {
-    const res = await privateClient.post(
-      `/messages/${messageId}/reactions`,
-      {
-        emoji
-      }
-    );
+  async toggleReaction(messageId: string, emoji: string): Promise<void> {
+    const res = await privateClient.post(`/messages/${messageId}/reactions`, {
+      emoji,
+    });
     return res.data.reactions;
-  }
+  },
+  async searchMessages(
+    conversationId: string,
+    query: string,
+  ): Promise<Message[]> {
+    const res = await privateClient.get(
+      `/messages/search?conversationId=${encodeURIComponent(conversationId)}&query=${encodeURIComponent(query)}`,
+    );
+    return res.data.messages;
+  },
 };

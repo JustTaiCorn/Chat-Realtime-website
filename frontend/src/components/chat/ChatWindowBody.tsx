@@ -7,6 +7,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { useSocketStore } from "@/zustands/useSocketStore.ts";
 import type { Message } from "@/types/chat.ts";
 import { ReplyPreview } from "./ReplyPreview.tsx";
+import { useSearchStore } from "@/zustands/useSearchStore.ts";
 export const ChatWindowBody = () => {
   const {
     activeConversationId,
@@ -18,6 +19,7 @@ export const ChatWindowBody = () => {
     replyToMessage,
     setReplyToMessage,
   } = useChatStore();
+  const { searchResults, currentSearchIndex, isSearchOpen } = useSearchStore();
   const [lastMessageStatus, setLastMessageStatus] = useState<
     "delivered" | "seen"
   >("delivered");
@@ -60,6 +62,20 @@ export const ChatWindowBody = () => {
       console.error("Failed to parse saved scroll:", err);
     }
   }, [messages]);
+
+  // Scroll to search result
+  useEffect(() => {
+    if (isSearchOpen && currentSearchIndex !== -1 && searchResults.length > 0) {
+      const messageId = searchResults[currentSearchIndex]._id;
+      const element = document.getElementById(`msg-${messageId}`);
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, [currentSearchIndex, searchResults, isSearchOpen]);
 
   const fetchMoreMessages = async () => {
     if (!activeConversationId) {
@@ -134,6 +150,11 @@ export const ChatWindowBody = () => {
                 lastMessageStatus={lastMessageStatus}
                 onReplyToMessage={handleReplyToMessage}
                 onReaction={handleReaction}
+                isHighlighted={
+                  isSearchOpen &&
+                  searchResults.length > 0 &&
+                  searchResults[currentSearchIndex]?._id === message._id
+                }
               />
             ))}
           </InfiniteScroll>

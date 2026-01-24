@@ -13,6 +13,7 @@ interface MessageItemProps {
   lastMessageStatus: "delivered" | "seen";
   onReplyToMessage: (message: Message) => void;
   onReaction: (messageId: string, emoji: string) => void;
+  isHighlighted?: boolean;
 }
 
 export const MessageItem = ({
@@ -24,8 +25,9 @@ export const MessageItem = ({
   lastMessageStatus,
   onReplyToMessage,
   onReaction,
+  isHighlighted,
 }: MessageItemProps) => {
-  const { content, imageUrl, createdAt, isOwn, replyTo, reactions } = message;
+  const { content, imageUrl, isOwn, replyTo, reactions } = message;
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
 
   const isShowTime =
@@ -42,7 +44,14 @@ export const MessageItem = ({
 
   return (
     <>
-      <div className={cn("chat", isOwn ? "chat-end" : "chat-start")}>
+      <div
+        id={`msg-${message._id}`}
+        className={cn(
+          "chat transition-all duration-300",
+          isOwn ? "chat-end" : "chat-start",
+          isHighlighted && "bg-warning/30 rounded-lg ring-2 ring-warning",
+        )}
+      >
         {/* Avatar + tên người gửi */}
         {!isOwn && isGroupBreak && (
           <>
