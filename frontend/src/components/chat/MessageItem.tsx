@@ -49,7 +49,7 @@ export const MessageItem = ({
         className={cn(
           "chat transition-all duration-300",
           isOwn ? "chat-end" : "chat-start",
-          isHighlighted && "bg-warning/30 rounded-lg ring-2 ring-warning",
+          isHighlighted && "bg-warning/30 ring-1 ring-warning",
         )}
       >
         {/* Avatar + tên người gửi */}

@@ -65,7 +65,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
                   onClick={() => handleCreateConversation(f?._id)}
                   className="flex items-center gap-3 p-3 rounded-xl bg-base-200 hover:bg-base-200/50 cursor-pointer transition-all border border-transparent hover:border-primary/20 group"
                 >
-                  <UserAvatar type="sidebar" name={f?.fullName} />
+                  <UserAvatar type="sidebar" name={f?.fullName} profilePicture={f?.profilePicture || undefined}/>
                   <div className="flex-1 min-w-0">
                     <h2 className="font-semibold text-sm truncate">
                       {f?.fullName}

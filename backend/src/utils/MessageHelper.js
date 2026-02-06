@@ -1,7 +1,7 @@
 export const updateConversationAfterCreateMessage = (
   conversation,
   message,
-  senderId
+  senderId,
 ) => {
   conversation.set({
     seenBy: [],
@@ -34,10 +34,11 @@ export const emitNewMessage = (conversation, message, io) => {
     unreadCounts: Object.fromEntries(conversation.unreadCounts),
   });
 };
-export const emitNewReaction = ( message, reactions, io) => {
+export const emitNewReaction = (message, reactions, io) => {
   io.to(message.conversationId.toString()).emit("new-reaction", {
     success: true,
-      messageId: message._id,
+    messageId: message._id,
+    conversationId: message.conversationId,
     reactions,
   });
-}
+};

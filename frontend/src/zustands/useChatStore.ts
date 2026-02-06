@@ -269,6 +269,27 @@ export const useChatStore = create<ChatState>()(
           throw e;
         }
       },
+      updateMessageReaction: (
+        messageId: string,
+        reactions: any[],
+        conversationId: string,
+      ) => {
+        set((state) => {
+          if (!state.messages[conversationId]) return state;
+
+          return {
+            messages: {
+              ...state.messages,
+              [conversationId]: {
+                ...state.messages[conversationId],
+                items: state.messages[conversationId].items.map((msg) =>
+                  msg._id === messageId ? { ...msg, reactions } : msg,
+                ),
+              },
+            },
+          };
+        });
+      },
     }),
     {
       name: "chat-storage",

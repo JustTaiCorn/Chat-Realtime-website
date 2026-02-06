@@ -46,6 +46,11 @@ export interface ChatState {
     name: string,
   ) => Promise<void>;
   handleReaction: (messageId: string, emoji: string) => Promise<void>;
+  updateMessageReaction: (
+    messageId: string,
+    reactions: any[],
+    conversationId: string,
+  ) => void;
 }
 
 export interface SocketState {
