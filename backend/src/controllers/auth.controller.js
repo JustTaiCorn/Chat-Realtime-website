@@ -199,7 +199,7 @@ export const updateProfile = async (req, res) => {
       const uploadedFile = await storage.createFile(
         process.env.APPWRITE_BUCKET_ID,
         fileId,
-        InputFile.fromBuffer(fileBuffer, fileName)
+        InputFile.fromBuffer(fileBuffer, fileName),
       );
 
       const fileUrl = `https://nyc.cloud.appwrite.io/v1/storage/buckets/${process.env.APPWRITE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${process.env.APPWRITE_PROJECT_ID}`;
@@ -207,7 +207,7 @@ export const updateProfile = async (req, res) => {
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         { profilePicture: fileUrl },
-        { new: true }
+        { new: true },
       ).select("-password");
 
       if (!updatedUser) {
@@ -260,12 +260,11 @@ export const googleAuthCallback = async (req, res) => {
     if (!user) {
       return res.redirect(
         `${
-          process.env.CLIENT_URL || "http://localhost:5173"
-        }/login?error=auth_failed`
+          process.env.CLIENT_URL
+        }/login?error=auth_failed`,
       );
     }
 
-    // Generate tokens for Google auth
     const accessToken = generateAccessToken(user._id);
     const refreshTokenValue = generateRefreshToken();
 
@@ -276,29 +275,18 @@ export const googleAuthCallback = async (req, res) => {
     });
 
     res.cookie("refreshToken", refreshTokenValue, getCookieOptions());
-
-    // Redirect with access token in URL (frontend will extract it)
     res.redirect(
       `${
-        process.env.CLIENT_URL || "http://localhost:5173"
-      }/?token=${accessToken}`
+        process.env.CLIENT_URL 
+      }/?token=${accessToken}`,
     );
   } catch (error) {
     console.log("Error in googleAuth controller:", error.message);
     res.redirect(
       `${
-        process.env.CLIENT_URL || "http://localhost:5173"
-      }/login?error=server_error`
+        process.env.CLIENT_URL 
+      }/login?error=server_error`,
     );
-  }
-};
-
-export const facebookAuth = async (req, res) => {
-  try {
-    const { email, fullName, profilePicture } = req.body;
-  } catch (error) {
-    console.log("Error in facebookAuth controller:", error.message);
-    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -333,7 +321,7 @@ export const forgotPassword = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
     const resetToken = crypto.randomBytes(20).toString("hex");
-    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiresAt = resetTokenExpiresAt;

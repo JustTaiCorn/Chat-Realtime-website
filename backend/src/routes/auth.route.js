@@ -1,7 +1,6 @@
 import express from "express";
 import {
   checkAuth,
-  facebookAuth,
   googleAuthCallback,
   forgotPassword,
   login,
@@ -49,5 +48,4 @@ router.get(
   googleAuthCallback
 );
 router.get("/search", protectRoute, searchUsers);
-router.get("/facebook", facebookAuth);
 export default router;

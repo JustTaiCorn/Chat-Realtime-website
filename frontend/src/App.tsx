@@ -12,6 +12,7 @@ import { ScrollToTop } from "./hooks/useScrollTop.tsx";
 import { useThemeStore } from "./zustands/useThemeStore.ts";
 import { useAuthStore } from "@/zustands/useAuthStore.ts";
 import { useSocketStore } from "@/zustands/useSocketStore.ts";
+import { OAuthCallbackHandler } from "@/components/auth/OAuthCallbackHandler.tsx";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ function App() {
       disconnectSocket();
     };
   }, [accessToken]);
+
   return (
     <>
       <div data-theme={theme}>
@@ -56,6 +58,7 @@ function App() {
           />
           <Suspense fallback={<Loading />}>
             <BrowserRouter>
+              <OAuthCallbackHandler />
               <Routes>
                 <Route path="/" element={<MainLayout />}>
                   {routes.map((route, index) =>
@@ -71,7 +74,7 @@ function App() {
                         key={index}
                         element={<ScrollToTop>{route.element}</ScrollToTop>}
                       />
-                    )
+                    ),
                   )}
                 </Route>
               </Routes>
