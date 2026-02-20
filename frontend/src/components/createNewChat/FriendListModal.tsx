@@ -27,7 +27,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal modal-open z-[100]">
+    <div className="modal modal-open z-[100] p-0">
       <form method="dialog" className="modal-box max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-base-300">
@@ -88,7 +88,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
       </form>
 
       {/* Backdrop */}
-        <div className="modal-backdrop bg-black/50" onClick={onClose} />
+        <div className="modal-backdrop" onClick={onClose} />
     </div>
   );
 };

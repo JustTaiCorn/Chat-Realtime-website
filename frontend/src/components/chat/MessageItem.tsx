@@ -22,7 +22,6 @@ export const MessageItem = ({
   index,
   messages,
   selectedConversation,
-  lastMessageStatus,
   onReplyToMessage,
   onReaction,
   isHighlighted,

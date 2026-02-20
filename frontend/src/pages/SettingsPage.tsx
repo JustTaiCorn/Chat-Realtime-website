@@ -61,7 +61,7 @@ export default function SettingsPage() {
           <div className="font-bold text-2xl">Chủ đề</div>
           <div className=" font-medium ">Mời lựa chọn chủ đề bạn yêu thích</div>
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+        <div className="grid grid-cols-3  md:grid-cols-8 gap-3">
           {themes.map((themes, i) => (
             <button
               key={themes}

@@ -27,6 +27,7 @@ coverage/
 .env.local
 .env.*.local
 .env.production
+.env
 # OS files
 .DS_Store
 Thumbs.db

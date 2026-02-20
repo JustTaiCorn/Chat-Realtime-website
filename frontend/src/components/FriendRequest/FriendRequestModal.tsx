@@ -80,7 +80,7 @@ export const FriendRequestModal = ({
       </div>
 
       {/* Backdrop */}
-      <div className="modal-backdrop bg-black/50" onClick={onClose} />
+      <div className="modal-backdrop " onClick={onClose} />
     </div>
   );
 };
