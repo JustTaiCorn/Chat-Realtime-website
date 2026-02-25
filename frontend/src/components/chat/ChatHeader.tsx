@@ -1,4 +1,11 @@
-import { Search, X, ChevronUp, ChevronDown, Loader2 } from "lucide-react";
+import {
+  Search,
+  X,
+  ChevronUp,
+  ChevronDown,
+  Loader2,
+  ArrowLeft,
+} from "lucide-react";
 import type { Conversation, Participant } from "../../types/chat.ts";
 import { useChatStore } from "../../zustands/useChatStore.ts";
 import { useAuthStore } from "../../zustands/useAuthStore.ts";
@@ -66,7 +73,14 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
     <header className="border-b border-base-300 sticky top-0 bg-base-100 z-10">
       {/* Header chính - luôn hiển thị */}
       <div className="flex items-center justify-between px-4 py-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Mobile back button */}
+          <button
+            onClick={() => setActiveConversation(null)}
+            className="btn btn-ghost btn-circle btn-sm md:hidden"
+          >
+            <ArrowLeft size={20} />
+          </button>
           {/* Avatar */}
           {currentChat.type === "direct" ? (
             <UserAvatar
@@ -87,11 +101,16 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
           )}
           {/* User info */}
           <div>
-            <h3 className="font-semibold text-primary">
+            <h3 className="font-semibold text-primary text-sm md:text-base truncate max-w-[180px] md:max-w-none">
               {currentChat.type === "direct"
                 ? otherParticipant?.fullName
                 : currentChat.group?.name || "Unnamed Group"}
             </h3>
+            {currentChat.type === "group" && (
+              <p className="text-xs text-base-content/50 md:hidden">
+                {currentChat.participants.length} thành viên
+              </p>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">

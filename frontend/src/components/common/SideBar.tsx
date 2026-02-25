@@ -15,10 +15,10 @@ export default function SideBar() {
   >(null);
 
   return (
-    <div className="h-[calc(100vh-6rem)] lg:w-80 w-20 flex flex-col bg-base-200 ml-4 mr-2.5 rounded-2xl overflow-hidden">
+    <div className="h-screen pb-16 md:pb-0 md:h-[calc(100vh-6rem)] w-full md:lg:w-80 md:w-20 flex flex-col bg-base-200 md:ml-4 md:mr-2.5 md:rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-base-300">
-        <span className="text-lg font-bold hidden lg:block">Tin nhắn</span>
+        <span className="text-lg font-bold md:hidden lg:block">Tin nhắn</span>
         <button
           className="btn btn-ghost btn-sm btn-circle"
           title="Tạo cuộc trò chuyện mới"
