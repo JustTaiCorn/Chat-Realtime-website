@@ -1,9 +1,10 @@
-import { useFriendStore } from "@/zustands/useFriendsStore";
+import { useGetFriendRequests } from "@/hooks/useFriendQuery";
 import FriendRequestItem from "./FriendRequestItem";
 import { Send } from "lucide-react";
 
 const SentRequests = () => {
-  const { sentList } = useFriendStore();
+  const { data } = useGetFriendRequests();
+  const sentList = data?.sent || [];
 
   if (!sentList || sentList.length === 0) {
     return (
@@ -19,7 +20,7 @@ const SentRequests = () => {
 
   return (
     <div className="space-y-3">
-      {sentList.map((req) => (
+      {sentList.map((req: any) => (
         <FriendRequestItem
           key={req._id}
           requestInfo={req}

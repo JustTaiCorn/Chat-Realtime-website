@@ -1,18 +1,25 @@
-import { useFriendStore } from "@/zustands/useFriendsStore";
+import {
+  useGetFriendRequests,
+  useAcceptFriendRequest,
+  useRejectFriendRequest,
+} from "@/hooks/useFriendQuery";
 import FriendRequestItem from "./FriendRequestItem";
 import { UserCheck, UserX, Users } from "lucide-react";
 import { useState } from "react";
 
 const ReceivedRequests = () => {
-  const { receivedList, acceptFriendRequest, rejectFriendRequest, loading } =
-    useFriendStore();
-  console.log("Received list:", receivedList);
+  const { data } = useGetFriendRequests();
+  const receivedList = data?.received || [];
+
+  const acceptMutation = useAcceptFriendRequest();
+  const rejectMutation = useRejectFriendRequest();
+
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const handleAccept = async (requestId: string) => {
     try {
       setProcessingId(requestId);
-      await acceptFriendRequest(requestId);
+      await acceptMutation.mutateAsync(requestId);
     } finally {
       setProcessingId(null);
     }
@@ -21,11 +28,13 @@ const ReceivedRequests = () => {
   const handleDecline = async (requestId: string) => {
     try {
       setProcessingId(requestId);
-      await rejectFriendRequest(requestId);
+      await rejectMutation.mutateAsync(requestId);
     } finally {
       setProcessingId(null);
     }
   };
+
+  const loading = acceptMutation.isPending || rejectMutation.isPending;
 
   if (!receivedList || receivedList.length === 0) {
     return (
@@ -41,7 +50,7 @@ const ReceivedRequests = () => {
 
   return (
     <div className=" space-y-3">
-      {receivedList.map((req) => {
+      {receivedList.map((req: any) => {
         console.log("Friend request item:", req);
         return (
           <FriendRequestItem

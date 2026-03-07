@@ -1,6 +1,6 @@
 import { X, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useFriendStore } from "@/zustands/useFriendsStore";
+import { useState } from "react";
+import { useGetFriendRequests } from "@/hooks/useFriendQuery";
 import ReceivedRequests from "./ReceivedRequest";
 import SentRequests from "./SentRequest";
 
@@ -13,15 +13,10 @@ export const FriendRequestModal = ({
   isOpen,
   onClose,
 }: FriendRequestModalProps) => {
-  const { receivedList, sentList, getAllFriendRequest, loading } =
-    useFriendStore();
+  const { data, isLoading: loading } = useGetFriendRequests();
+  const receivedList = data?.received || [];
+  const sentList = data?.sent || [];
   const [activeTab, setActiveTab] = useState<"received" | "sent">("received");
-
-  useEffect(() => {
-    if (isOpen) {
-      getAllFriendRequest();
-    }
-  }, [isOpen, getAllFriendRequest]);
 
   if (!isOpen) return null;
 

@@ -68,10 +68,10 @@ export const createConversation = async (req, res) => {
       ...conversation.toObject(),
       participants,
     };
-    if(type === "group"){
-        memberIds.forEach((memberId) => {
-          io.to(memberId).emit("new-group", formatConversation);
-        },);
+    if (type === "group") {
+      memberIds.forEach((memberId) => {
+        io.to(memberId).emit("new-group", formatConversation);
+      });
     }
     res.status(201).json({ success: true, conversation: formatConversation });
   } catch (err) {
@@ -124,9 +124,9 @@ export const getMessages = async (req, res) => {
     let messages = await Message.find(query)
       .sort({ createdAt: -1 })
       .limit(Number(limit) + 1)
-        .populate("replyTo", "content senderId imageUrl")
-        .populate("replyTo.senderId", "fullName profilePicture")
-        .populate("reactions.userId", "fullName profilePicture");;
+      .populate("replyTo", "content senderId imageUrl")
+      .populate("replyTo.senderId", "fullName profilePicture")
+      .populate("reactions.userId", "fullName profilePicture");
     let nextCursor = null;
     if (messages.length > Number(limit)) {
       const nextMessage = messages[messages.length - 1];
@@ -147,7 +147,7 @@ export const getConversationForSocketIo = async (userId) => {
       {
         "participants.userId": userId,
       },
-      { _id: 1 }
+      { _id: 1 },
     );
     return conversations.map((c) => c._id.toString());
   } catch (e) {
@@ -184,23 +184,43 @@ export const markAsSeen = async (req, res) => {
         $addToSet: { seenBy: userId },
         $set: { [`unreadCounts.${userId.toString()}`]: 0 },
       },
-      { new: true }
-    );
+      { new: true },
+    ).populate([
+      { path: "participants.userId", select: " fullName profilePicture" },
+      { path: "lastMessage.senderId", select: " fullName profilePicture" },
+      { path: "seenBy", select: " fullName profilePicture" },
+    ]);
+
+    const participants = updated.participants.map((p) => {
+      return {
+        _id: p.userId._id,
+        fullName: p.userId.fullName,
+        profilePicture: p.userId.profilePicture,
+      };
+    });
+
+    const formatUpdated = {
+      ...updated.toObject(),
+      participants,
+    };
+
     io.to(conversationId).emit("read-message", {
-      conversation: updated,
-      lastMessage: {
-        _id: updated?.lastMessage._id,
-        content: updated?.lastMessage.content,
-        senderId: updated?.lastMessage.senderId,
-        createdAt: updated?.lastMessage.createdAt,
-      },
+      conversation: formatUpdated,
+      lastMessage: formatUpdated.lastMessage
+        ? {
+            _id: formatUpdated.lastMessage._id,
+            content: formatUpdated.lastMessage.content,
+            senderId: formatUpdated.lastMessage.senderId,
+            createdAt: formatUpdated.lastMessage.createdAt,
+          }
+        : null,
     });
 
     return res.status(200).json({
       success: true,
-      conversation: updated,
+      conversation: formatUpdated,
       message: "Đã đánh dấu tin nhắn là đã xem",
-      unreadCounts: updated.unreadCounts[userId] || 0,
+      unreadCounts: formatUpdated.unreadCounts[userId] || 0,
     });
   } catch (e) {
     console.log("Lỗi khi đánh dấu tin nhắn là đã xem", e);

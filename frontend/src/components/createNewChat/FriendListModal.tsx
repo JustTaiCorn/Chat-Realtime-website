@@ -1,8 +1,7 @@
-import { useFriendStore } from "@/zustands/useFriendsStore";
+import { useGetFriends } from "@/hooks/useFriendQuery";
 import { MessageCircleMore, Users, X } from "lucide-react";
 import { UserAvatar } from "@/components/chat/UserAvatar";
 import { useChatStore } from "@/zustands/useChatStore";
-import { useEffect } from "react";
 
 interface FriendListModalProps {
   isOpen: boolean;
@@ -10,14 +9,9 @@ interface FriendListModalProps {
 }
 
 const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
-  const { friends, getFriends, loading } = useFriendStore();
+  const { data: friendsData, isLoading: loading } = useGetFriends();
+  const friends = friendsData || [];
   const { createConversation } = useChatStore();
-
-  useEffect(() => {
-    if (isOpen) {
-      getFriends();
-    }
-  }, [isOpen, getFriends]);
 
   const handleCreateConversation = async (friendId: string) => {
     await createConversation("direct", [friendId], "");
@@ -59,13 +53,17 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
                 <span className="loading loading-spinner loading-lg text-primary" />
               </div>
             ) : friends && friends.length > 0 ? (
-              friends.map((f) => (
+              friends.map((f: any) => (
                 <div
                   key={f?._id}
                   onClick={() => handleCreateConversation(f?._id)}
                   className="flex items-center gap-3 p-3 rounded-xl bg-base-200 hover:bg-base-200/50 cursor-pointer transition-all border border-transparent hover:border-primary/20 group"
                 >
-                  <UserAvatar type="sidebar" name={f?.fullName} profilePicture={f?.profilePicture || undefined}/>
+                  <UserAvatar
+                    type="sidebar"
+                    name={f?.fullName}
+                    profilePicture={f?.profilePicture || undefined}
+                  />
                   <div className="flex-1 min-w-0">
                     <h2 className="font-semibold text-sm truncate">
                       {f?.fullName}
@@ -88,7 +86,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
       </form>
 
       {/* Backdrop */}
-        <div className="modal-backdrop" onClick={onClose} />
+      <div className="modal-backdrop" onClick={onClose} />
     </div>
   );
 };

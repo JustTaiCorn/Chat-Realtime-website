@@ -1,6 +1,6 @@
-import { useFriendStore } from "@/zustands/useFriendsStore";
+import { useGetFriends } from "@/hooks/useFriendQuery";
 import { Search, UserPlus, Users, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { UserAvatar } from "../chat/UserAvatar";
 import { useChatStore } from "@/zustands/useChatStore";
 import type { UserInfo } from "@/types/friend";
@@ -19,19 +19,14 @@ export const NewGroupChatModal = ({
   const [search, setSearch] = useState("");
   const [invitedUsers, setInvitedUsers] = useState<UserInfo[]>([]);
   const { createConversation, loading } = useChatStore();
-  const { friends, getFriends } = useFriendStore();
-
-  useEffect(() => {
-    if (isOpen) {
-      getFriends();
-    }
-  }, [isOpen, getFriends]);
+  const { data: friendsData, isLoading: loadingFriends } = useGetFriends();
+  const friends = friendsData || [];
 
   // Filter friends based on search and exclude already invited
   const filteredFriends = friends.filter(
-    (friend) =>
+    (friend: any) =>
       friend.fullName.toLowerCase().includes(search.toLowerCase()) &&
-      !invitedUsers.some((u) => u._id === friend._id)
+      !invitedUsers.some((u) => u._id === friend._id),
   );
 
   const handleSelectFriend = (friend: UserInfo) => {
@@ -58,7 +53,7 @@ export const NewGroupChatModal = ({
       await createConversation(
         "group",
         invitedUsers.map((u) => u._id),
-        groupName
+        groupName,
       );
 
       // Reset form
@@ -165,12 +160,12 @@ export const NewGroupChatModal = ({
             </h4>
 
             <div className="space-y-2">
-              {loading ? (
+              {loadingFriends ? (
                 <div className="flex justify-center py-8">
                   <span className="loading loading-spinner loading-lg text-primary" />
                 </div>
               ) : filteredFriends.length > 0 ? (
-                filteredFriends.map((friend) => (
+                filteredFriends.map((friend: any) => (
                   <div
                     key={friend._id}
                     onClick={() => handleSelectFriend(friend)}

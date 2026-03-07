@@ -58,7 +58,7 @@ export const chatService = {
     return response.data.newMessage;
   },
   async markAsSeen(conversationId: string): Promise<void> {
-    const res = await privateClient.post(
+    const res = await privateClient.patch(
       `/conversations/${conversationId}/seen`,
     );
     return res.data;

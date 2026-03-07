@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFriendStore } from "@/zustands/useFriendsStore";
+import { useSendFriendRequest } from "@/hooks/useFriendQuery";
 import { useDebounce } from "use-debounce";
 import type { User } from "@/zustands/useAuthStore";
 import { useAuthStore } from "@/zustands/useAuthStore";
@@ -14,7 +15,8 @@ export const AddFriendModal = ({ isOpen, onClose }: AddFriendModalProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [sendingTo, setSendingTo] = useState<string | null>(null);
-  const { searchUser, sendFriendRequest, loading } = useFriendStore();
+  const { searchUser, loading } = useFriendStore();
+  const sendRequestMutation = useSendFriendRequest();
   const { authUser } = useAuthStore();
   const [debouncedQuery] = useDebounce(searchQuery, 1000);
 
@@ -40,7 +42,7 @@ export const AddFriendModal = ({ isOpen, onClose }: AddFriendModalProps) => {
   const handleSendFriendRequest = async (userId: string) => {
     try {
       setSendingTo(userId);
-      await sendFriendRequest(userId);
+      await sendRequestMutation.mutateAsync({ to: userId });
       setSearchResults([]);
     } catch (error) {
       console.error(error);
@@ -84,7 +86,6 @@ export const AddFriendModal = ({ isOpen, onClose }: AddFriendModalProps) => {
         {/* Search */}
         <div className="px-6 py-4 border-b border-base-300">
           <div className="relative ">
-
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/40" />
             <input
               type="text"
@@ -116,7 +117,7 @@ export const AddFriendModal = ({ isOpen, onClose }: AddFriendModalProps) => {
                           src={
                             user.profilePicture ||
                             `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                              user.fullName
+                              user.fullName,
                             )}`
                           }
                           alt={user.fullName}

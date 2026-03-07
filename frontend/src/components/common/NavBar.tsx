@@ -7,20 +7,15 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../zustands/useAuthStore";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FriendRequestModal } from "../FriendRequest/FriendRequestModal.tsx";
-import { useFriendStore } from "@/zustands/useFriendsStore";
+import { useGetFriendRequests } from "@/hooks/useFriendQuery";
 
 export default function NavBar() {
   const { authUser, logout } = useAuthStore();
-  const { receivedList, getAllFriendRequest } = useFriendStore();
+  const { data: friendRequestsData } = useGetFriendRequests();
+  const receivedList = friendRequestsData?.received || [];
   const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (authUser) {
-      getAllFriendRequest();
-    }
-  }, [authUser, getAllFriendRequest]);
 
   return (
     <>
@@ -52,10 +47,7 @@ export default function NavBar() {
                   )}
                 </button>
               )}
-              <Link
-                to="/settings"
-                className="btn btn-sm gap-2 transition-colors btn-outline  "
-              >
+              <Link to="/settings" className="btn btn-sm gap-2 bg-base-200  ">
                 <Settings className="w-5 h-5" />
                 <span className="hidden sm:block ">Settings</span>
               </Link>
