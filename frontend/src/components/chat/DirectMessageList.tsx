@@ -1,13 +1,13 @@
-import { useChatStore } from "../../zustands/useChatStore.ts";
 import { DirectMessageCard } from "./DirectMessageCard.tsx";
+import { useGetConversations } from "@/hooks/useChatQuery";
 
 export const DirectMessageList = () => {
-  const { conversations } = useChatStore();
+  const { data: conversations } = useGetConversations();
   if (!conversations) {
     return null;
   }
   const directConversations = conversations.filter(
-    (conversation) => conversation.type === "direct"
+    (conversation) => conversation.type === "direct",
   );
   return (
     <div className="flex-1 overflow-y-auto p-2 space-y-2">

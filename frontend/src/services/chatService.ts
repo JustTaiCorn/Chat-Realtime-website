@@ -15,9 +15,10 @@ export const chatService = {
     conversationId: string,
     cursor?: string,
   ): Promise<MessagesPResponse> {
-    const response = await privateClient.get(
-      `/conversations/${conversationId}/messages?limit=${LIMIT}&cursor=${cursor}`,
-    );
+    const url = cursor
+      ? `/conversations/${conversationId}/messages?limit=${LIMIT}&cursor=${cursor}`
+      : `/conversations/${conversationId}/messages?limit=${LIMIT}`;
+    const response = await privateClient.get(url);
     return {
       messages: response.data.messages,
       cursor: response.data.nextCursor,

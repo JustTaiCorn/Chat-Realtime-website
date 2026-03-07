@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { authService } from "../services/authService";
 import { persist } from "zustand/middleware";
 import { useChatStore } from "./useChatStore.ts";
+import { queryClient } from "@/lib/queryClient";
 
 export interface User {
   _id: string;
@@ -58,8 +59,9 @@ export const useAuthStore = create<AuthStore>()(
       setAccessToken: (accessToken) => set({ accessToken }),
 
       clearState: () => {
-        set({ authUser: null, accessToken: null, loading: false }),
-          useChatStore.getState().reset();
+        set({ authUser: null, accessToken: null, loading: false });
+        useChatStore.getState().reset();
+        queryClient.clear();
         localStorage.clear();
         sessionStorage.clear();
       },
@@ -70,7 +72,7 @@ export const useAuthStore = create<AuthStore>()(
           const res = await authService.signup(
             data.fullName,
             data.email,
-            data.password
+            data.password,
           );
           set({ authUser: res.user, accessToken: res.accessToken });
           toast.success("Đăng ký thành công");
@@ -91,7 +93,6 @@ export const useAuthStore = create<AuthStore>()(
           set({ loading: true });
           const res = await authService.login(data.email, data.password);
           set({ authUser: res.user, accessToken: res.accessToken });
-          useChatStore.getState().fetchConversations();
           toast.success("Đăng nhập thành công");
         } catch (error: unknown) {
           const errorMessage =
@@ -205,6 +206,6 @@ export const useAuthStore = create<AuthStore>()(
       partialize: (state) => ({
         authUser: state.authUser,
       }),
-    }
-  )
+    },
+  ),
 );

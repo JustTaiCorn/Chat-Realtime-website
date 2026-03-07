@@ -1,11 +1,10 @@
-
-import { useChatStore } from "../../zustands/useChatStore.ts";
 import { GroupChatCard } from "./GroupChatCard.tsx";
+import { useGetConversations } from "@/hooks/useChatQuery";
 
 export const GroupChatList = () => {
-  const conversations = useChatStore((state) => state.conversations);
+  const { data: conversations } = useGetConversations();
 
-  const groupchats =  conversations.filter((c) => c.type === "group")
+  const groupchats = conversations?.filter((c) => c.type === "group") || [];
 
   if (!groupchats || groupchats.length === 0) {
     return null;

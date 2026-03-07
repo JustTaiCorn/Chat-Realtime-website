@@ -2,8 +2,8 @@ import { useGetFriends } from "@/hooks/useFriendQuery";
 import { Search, UserPlus, Users, X } from "lucide-react";
 import { useState } from "react";
 import { UserAvatar } from "../chat/UserAvatar";
-import { useChatStore } from "@/zustands/useChatStore";
 import type { UserInfo } from "@/types/friend";
+import { useCreateConversation } from "@/hooks/useChatQuery";
 import { toast } from "react-toastify";
 
 interface NewGroupChatModalProps {
@@ -18,7 +18,8 @@ export const NewGroupChatModal = ({
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
   const [invitedUsers, setInvitedUsers] = useState<UserInfo[]>([]);
-  const { createConversation, loading } = useChatStore();
+  const { mutateAsync: createConversation, isPending: loading } =
+    useCreateConversation();
   const { data: friendsData, isLoading: loadingFriends } = useGetFriends();
   const friends = friendsData || [];
 
@@ -50,11 +51,14 @@ export const NewGroupChatModal = ({
         return;
       }
 
-      await createConversation(
-        "group",
-        invitedUsers.map((u) => u._id),
-        groupName,
-      );
+      await createConversation({
+        type: "group",
+        memberIds: [
+          ...invitedUsers.map((u) => u._id),
+          // authUser?._id || "", // authUser is not defined in the original code, so it's commented out to avoid reference error.
+        ],
+        name: groupName,
+      });
 
       // Reset form
       setGroupName("");

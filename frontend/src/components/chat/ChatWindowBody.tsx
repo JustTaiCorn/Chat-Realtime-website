@@ -8,27 +8,33 @@ import { useSocketStore } from "@/zustands/useSocketStore.ts";
 import type { Message } from "@/types/chat.ts";
 import { ReplyPreview } from "./ReplyPreview.tsx";
 import { useSearchStore } from "@/zustands/useSearchStore.ts";
+import {
+  useGetMessages,
+  useToggleReaction,
+  useGetConversations,
+} from "@/hooks/useChatQuery";
+import type { Conversation } from "@/types/chat";
 export const ChatWindowBody = () => {
+  const { activeConversationId, replyToMessage, setReplyToMessage } =
+    useChatStore();
   const {
-    activeConversationId,
-    conversations,
-    messages: allMessages,
-    fetchMessages,
-    MessageLoading,
-    handleReaction,
-    replyToMessage,
-    setReplyToMessage,
-  } = useChatStore();
+    data: messagesData,
+    fetchNextPage,
+    hasNextPage: hasMore,
+    isLoading: MessageLoading,
+  } = useGetMessages(activeConversationId);
+  const { mutateAsync: toggleReaction } = useToggleReaction();
   const { searchResults, currentSearchIndex, isSearchOpen } = useSearchStore();
   const [lastMessageStatus, setLastMessageStatus] = useState<
     "delivered" | "seen"
   >("delivered");
   const { onlineUsers } = useSocketStore();
-  const messages = allMessages[activeConversationId || ""]?.items || [];
+  const messages = messagesData?.pages.flatMap((page) => page.messages) || [];
   const reverseMessages = [...messages].reverse();
-  const hasMore = allMessages[activeConversationId || ""]?.hasMore || false;
+  const { data: conversations } = useGetConversations();
   const selectedConversation =
-    conversations.find((c) => c._id === activeConversationId) || null;
+    conversations?.find((c: Conversation) => c._id === activeConversationId) ||
+    null;
   const key = `chat_scroll_${activeConversationId}`;
   const messageRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -83,9 +89,19 @@ export const ChatWindowBody = () => {
     }
 
     try {
-      fetchMessages(activeConversationId);
+      if (hasMore) {
+        fetchNextPage();
+      }
     } catch (error) {
       console.error("Lỗi xảy ra khi fetch thêm tin", error);
+    }
+  };
+
+  const handleReaction = async (messageId: string, emoji: string) => {
+    try {
+      await toggleReaction({ messageId, emoji });
+    } catch (error) {
+      console.error("Lỗi thả cảm xúc", error);
     }
   };
 

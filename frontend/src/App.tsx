@@ -1,5 +1,4 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { MainLayout } from "./components/layouts/Mainlayout";
@@ -8,14 +7,12 @@ import Loading from "./components/common/Loading";
 import { ToastContainer } from "react-toastify";
 import routes from "./routes/routes";
 
-
 import { useThemeStore } from "./zustands/useThemeStore.ts";
 import { useAuthStore } from "@/zustands/useAuthStore.ts";
 import { useSocketStore } from "@/zustands/useSocketStore.ts";
 import { OAuthCallbackHandler } from "@/components/auth/OAuthCallbackHandler.tsx";
-import {ScrollToTop} from "@/hooks/useScrollTop.tsx";
-
-const queryClient = new QueryClient();
+import { ScrollToTop } from "@/hooks/useScrollTop.tsx";
+import { queryClient } from "@/lib/queryClient";
 
 function App() {
   const { theme } = useThemeStore();

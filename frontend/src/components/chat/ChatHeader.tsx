@@ -11,6 +11,7 @@ import { useChatStore } from "../../zustands/useChatStore.ts";
 import { useAuthStore } from "../../zustands/useAuthStore.ts";
 import { UserAvatar } from "./UserAvatar.tsx";
 import GroupChatAvatar from "./GroupChatAvatar.tsx";
+import { useGetConversations } from "@/hooks/useChatQuery";
 import { useSocketStore } from "@/zustands/useSocketStore.ts";
 import { useSearchStore } from "@/zustands/useSearchStore.ts";
 import { useEffect } from "react";
@@ -24,8 +25,8 @@ interface ChatHeaderProps {
 const ChatHeader = ({ chat }: ChatHeaderProps) => {
   const { authUser } = useAuthStore();
   const { onlineUsers } = useSocketStore();
-  const { conversations, activeConversationId, setActiveConversation } =
-    useChatStore();
+  const { activeConversationId, setActiveConversation } = useChatStore();
+  const { data: conversations } = useGetConversations();
   const {
     isSearchOpen,
     setIsSearchOpen,
@@ -42,7 +43,8 @@ const ChatHeader = ({ chat }: ChatHeaderProps) => {
   const [debouncedQuery] = useDebounce(searchQuery, 300);
 
   const currentChat =
-    chat ?? conversations.find((c) => c._id === activeConversationId);
+    chat ??
+    conversations?.find((c: Conversation) => c._id === activeConversationId);
 
   useEffect(() => {
     if (!activeConversationId || !isSearchOpen) return;

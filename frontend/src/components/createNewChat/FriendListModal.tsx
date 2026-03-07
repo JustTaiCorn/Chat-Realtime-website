@@ -1,7 +1,7 @@
 import { useGetFriends } from "@/hooks/useFriendQuery";
 import { MessageCircleMore, Users, X } from "lucide-react";
 import { UserAvatar } from "@/components/chat/UserAvatar";
-import { useChatStore } from "@/zustands/useChatStore";
+import { useCreateConversation } from "@/hooks/useChatQuery";
 
 interface FriendListModalProps {
   isOpen: boolean;
@@ -9,13 +9,16 @@ interface FriendListModalProps {
 }
 
 const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
-  const { data: friendsData, isLoading: loading } = useGetFriends();
-  const friends = friendsData || [];
-  const { createConversation } = useChatStore();
+  const { data: friends, isLoading: loadingFriends } = useGetFriends();
+  const { mutateAsync: createConversation } = useCreateConversation();
 
   const handleCreateConversation = async (friendId: string) => {
-    await createConversation("direct", [friendId], "");
-    onClose();
+    try {
+      await createConversation({ type: "direct", memberIds: [friendId] });
+      onClose();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (!isOpen) return null;
@@ -48,7 +51,7 @@ const FriendListModal = ({ isOpen, onClose }: FriendListModalProps) => {
           </h4>
 
           <div className="space-y-2 max-h-60 overflow-y-auto">
-            {loading ? (
+            {loadingFriends ? (
               <div className="flex justify-center py-8">
                 <span className="loading loading-spinner loading-lg text-primary" />
               </div>

@@ -3,6 +3,10 @@ import { Image, Send } from "lucide-react";
 import { useAuthStore } from "@/zustands/useAuthStore";
 import { useChatStore } from "@/zustands/useChatStore";
 import type { Conversation } from "@/types/chat";
+import {
+  useSendDirectMessage,
+  useSendGroupMessage,
+} from "@/hooks/useChatQuery";
 import { toast } from "react-toastify";
 import EmojiPicker from "./EmojiPicker";
 
@@ -12,8 +16,9 @@ const MessageInput = ({
   selectedConversation: Conversation;
 }) => {
   const { authUser } = useAuthStore();
-  const { sendDirectMessage, sendGroupMessage, replyToMessage } =
-    useChatStore();
+  const { replyToMessage, setReplyToMessage } = useChatStore();
+  const { mutateAsync: sendDirectBtn } = useSendDirectMessage();
+  const { mutateAsync: sendGroupBtn } = useSendGroupMessage();
   const [value, setValue] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -35,20 +40,23 @@ const MessageInput = ({
           (p) => p._id !== authUser._id,
         );
         if (otherUser) {
-          await sendDirectMessage(
-            otherUser._id,
-            currValue,
-            currFile || undefined,
-            replyToMessage?._id,
-          );
+          await sendDirectBtn({
+            receiverId: otherUser._id,
+            content: currValue,
+            image: currFile || undefined,
+            conversationId: selectedConversation._id,
+            replyToMessageId: replyToMessage?._id,
+          });
+          setReplyToMessage(null);
         }
       } else {
-        await sendGroupMessage(
-          selectedConversation._id,
-          currValue,
-          currFile || undefined,
-          replyToMessage?._id,
-        );
+        await sendGroupBtn({
+          conversationId: selectedConversation._id,
+          content: currValue,
+          image: currFile || undefined,
+          replyToMessageId: replyToMessage?._id,
+        });
+        setReplyToMessage(null);
       }
     } catch (error) {
       console.error(error);

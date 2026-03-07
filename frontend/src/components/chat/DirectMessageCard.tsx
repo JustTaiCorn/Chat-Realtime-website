@@ -13,28 +13,20 @@ export const DirectMessageCard = ({
 }) => {
   const { authUser } = useAuthStore();
   const { onlineUsers } = useSocketStore();
-  const {
-    activeConversationId,
-    setActiveConversation,
-    messages,
-    fetchMessages,
-  } = useChatStore();
+  const { activeConversationId, setActiveConversation } = useChatStore();
   if (!authUser) {
     return null;
   }
   const otherParticipant = conversation.participants.find(
-    (participant) => participant._id !== authUser._id
+    (participant) => participant._id !== authUser._id,
   );
   if (!otherParticipant) {
     return null;
   }
   const unreadCount = conversation.unreadCounts[authUser._id] || 0;
   const lastMessage = conversation.lastMessage?.content ?? "No messages yet";
-  const handleSelectConversation = async (id: string) => {
+  const handleSelectConversation = (id: string) => {
     setActiveConversation(id);
-    if (!messages[id]) {
-      fetchMessages(id);
-    }
   };
   return (
     <div>
@@ -61,7 +53,7 @@ export const DirectMessageCard = ({
               "text-sm truncate",
               unreadCount > 0
                 ? "font-medium text-foreground"
-                : "text-mute-foreground"
+                : "text-mute-foreground",
             )}
           >
             {lastMessage}

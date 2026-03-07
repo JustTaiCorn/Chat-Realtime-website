@@ -5,11 +5,11 @@ import { useState } from "react";
 import { AddFriendModal } from "@/components/chat/AddFriendModal.tsx";
 import FriendListModal from "@/components/createNewChat/FriendListModal.tsx";
 import { NewGroupChatModal } from "../createNewChat/NewGroupChatModal.tsx";
-import { useChatStore } from "@/zustands/useChatStore.ts";
 import { ConversationSkeleton } from "../skeleton/Conversationskeleton.tsx";
+import { useGetConversations } from "@/hooks/useChatQuery";
 
 export default function SideBar() {
-  const { ConversationLoading } = useChatStore();
+  const { isLoading: ConversationLoading } = useGetConversations();
   const [activeModal, setActiveModal] = useState<
     null | "addFriend" | "friendList" | "newGroup"
   >(null);

@@ -1,300 +1,31 @@
 import type { ChatState } from "../types/store.ts";
 import { persist } from "zustand/middleware";
 import { create } from "zustand";
-import { chatService } from "../services/chatService.ts";
-import { toast } from "react-toastify";
-import { useAuthStore } from "./useAuthStore.ts";
-import type { Conversation, Message } from "@/types/chat.ts";
-import { useSocketStore } from "./useSocketStore.ts";
+import type { Message } from "@/types/chat.ts";
 
 export const useChatStore = create<ChatState>()(
   persist(
-    (set, get) => ({
-      conversations: [],
-      messages: {},
+    (set) => ({
       activeConversationId: null,
-      ConversationLoading: false,
-      MessageLoading: false,
-      loading: false,
       replyToMessage: null,
 
       setActiveConversation: (conversationId: string | null) =>
         set({ activeConversationId: conversationId, replyToMessage: null }),
+
       setReplyToMessage: (message: Message | null) =>
         set({ replyToMessage: message }),
-      fetchConversations: async () => {
-        try {
-          set({ ConversationLoading: true });
-          const { conversations } = await chatService.fetchConversations();
-          set({ conversations });
-        } catch (e) {
-          console.error(e);
-          toast.error("Co loi xay ra ");
-        } finally {
-          set({ ConversationLoading: false });
-        }
-      },
+
       reset: () => {
         set({
-          conversations: [],
-          messages: {},
           activeConversationId: null,
-          ConversationLoading: false,
-          MessageLoading: false,
-          loading: false,
           replyToMessage: null,
-        });
-      },
-      fetchMessages: async (conversationId: string) => {
-        const { activeConversationId, messages } = get();
-        const user = useAuthStore.getState().authUser;
-        const convoId = activeConversationId || conversationId;
-        if (!convoId) {
-          return null;
-        }
-        const current = messages?.[convoId];
-        const nextCursor =
-          current?.nextCursor === undefined ? "" : current?.nextCursor;
-        if (nextCursor === null) {
-          return;
-        }
-        set({ MessageLoading: true });
-        try {
-          const { messages, cursor } = await chatService.fetchMessages(
-            convoId,
-            nextCursor,
-          );
-          const processed = messages.map((message) => ({
-            ...message,
-            isOwn: message.senderId === user?._id,
-          }));
-          set((state) => {
-            const pre = state.messages[convoId]?.items ?? [];
-            const merged = pre.length > 0 ? [...pre, ...processed] : processed;
-
-            return {
-              messages: {
-                ...state.messages,
-                [convoId]: {
-                  items: merged,
-                  hasMore: !!cursor,
-                  nextCursor: cursor || null,
-                },
-              },
-            };
-          });
-        } catch (e: unknown) {
-          console.error("Lỗi xảy ra khi lấy Message", e);
-          toast.error("Co loi xay ra,");
-        } finally {
-          set({ MessageLoading: false });
-        }
-      },
-      sendDirectMessage: async (
-        receiverId: string,
-        content: string,
-        image?: File,
-        replyToMessageId?: string,
-      ) => {
-        try {
-          const { activeConversationId } = get();
-          await chatService.sendDirectMessage(
-            receiverId,
-            content,
-            image,
-            activeConversationId || "",
-            replyToMessageId,
-          );
-          set((state) => ({
-            replyToMessage: null,
-            conversations: state.conversations.map((conversation) => {
-              return conversation._id === activeConversationId
-                ? {
-                    ...conversation,
-                    seenBy: [],
-                  }
-                : conversation;
-            }),
-          }));
-        } catch (error) {
-          console.error("Lỗi khi gửi tin nhắn:", error);
-          toast.error("Không thể gửi tin nhắn");
-          throw error;
-        }
-      },
-      sendGroupMessage: async (
-        conversationId: string,
-        content: string,
-        image?: File,
-        replyToMessageId?: string,
-      ) => {
-        try {
-          await chatService.sendGroupMessage(
-            conversationId,
-            content,
-            image,
-            replyToMessageId,
-          );
-          set((state) => ({
-            replyToMessage: null,
-            conversations: state.conversations.map((conversation) => {
-              return conversation._id === get().activeConversationId
-                ? {
-                    ...conversation,
-                    seenBy: [],
-                  }
-                : conversation;
-            }),
-          }));
-        } catch (error) {
-          console.error("Lỗi khi gửi tin nhắn nhóm:", error);
-          toast.error("Không thể gửi tin nhắn nhóm");
-          throw error;
-        }
-      },
-
-      addMessageToConversation: async (message: Message) => {
-        try {
-          const { authUser } = useAuthStore.getState();
-          const fetchMessages = get().fetchMessages;
-          message.isOwn = message.senderId === authUser?._id;
-          const convoId = message.conversationId;
-          let preMessages = get().messages[convoId].items || [];
-          if (preMessages.length === 0) {
-            fetchMessages(message.conversationId);
-            preMessages = get().messages[convoId].items || [];
-          }
-
-          set((state) => {
-            if (preMessages.some((msg) => msg._id === message._id)) {
-              return state;
-            }
-            return {
-              messages: {
-                ...state.messages,
-                [convoId]: {
-                  items: [...preMessages, message],
-                  hasMore: state.messages[convoId]?.hasMore,
-                  nextCursor: state.messages[convoId]?.nextCursor,
-                },
-              },
-            };
-          });
-        } catch (error) {
-          console.error("Lỗi khi thêm tin nhắn vào cuộc trò chuyện:", error);
-          toast.error("Không thể thêm tin nhắn vào cuộc trò chuyện");
-          throw error;
-        }
-      },
-      addConversation: (conversation: Conversation) => {
-        set((state) => {
-          const exists = state.conversations.find(
-            (c) => c._id === conversation._id,
-          );
-          return {
-            conversations: exists
-              ? state.conversations
-              : [conversation, ...state.conversations],
-            activeConversationId: conversation._id,
-          };
-        });
-      },
-      createConversation: async (type, memberIds, name) => {
-        set({ loading: true });
-        try {
-          const conversation = await chatService.createConversation(
-            type,
-            memberIds,
-            name,
-          );
-          get().addConversation(conversation);
-          useSocketStore
-            .getState()
-            .socket?.emit("join-conversation", conversation._id);
-        } catch (error) {
-          console.error("Lỗi khi tạo cuộc trò chuyện:", error);
-          toast.error("Không thể tạo cuộc trò chuyện");
-          throw error;
-        } finally {
-          set({ loading: false });
-        }
-      },
-      updateConversation: (conversation) => {
-        set((state) => ({
-          conversations: state.conversations.map((conv) =>
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            conv._id === conversation._id ? { ...conv, ...conversation } : conv,
-          ),
-        }));
-      },
-
-      markAsSeen: async () => {
-        try {
-          const { authUser } = useAuthStore.getState();
-          const { activeConversationId, conversations } = get();
-          if (!authUser || !activeConversationId) return;
-          const convo = conversations.find(
-            (c) => c._id === activeConversationId,
-          );
-
-          if (!convo) return;
-
-          if ((convo.unreadCounts[authUser._id] ?? 0) === 0) return;
-
-          await chatService.markAsSeen(activeConversationId);
-          set((state) => ({
-            conversations: state.conversations.map((c) =>
-              c._id === activeConversationId && c.lastMessage
-                ? {
-                    ...c,
-                    unreadCounts: {
-                      ...c.unreadCounts,
-                      [authUser._id]: 0,
-                    },
-                  }
-                : c,
-            ),
-          }));
-        } catch (e) {
-          console.error("Lỗi khi đánh dấu đã xem tin nhắn:", e);
-        }
-      },
-      handleReaction: async (messageId: string, emoji: string) => {
-        try {
-          await chatService.toggleReaction(messageId, emoji);
-        } catch (e) {
-          console.error("Lỗi khi đánh dấu đã xem tin nhắn:", e);
-          toast.error("Không thể thêm phản hồi");
-          throw e;
-        }
-      },
-      updateMessageReaction: (
-        messageId: string,
-        reactions: any[],
-        conversationId: string,
-      ) => {
-        set((state) => {
-          if (!state.messages[conversationId]) return state;
-
-          return {
-            messages: {
-              ...state.messages,
-              [conversationId]: {
-                ...state.messages[conversationId],
-                items: state.messages[conversationId].items.map((msg) =>
-                  msg._id === messageId ? { ...msg, reactions } : msg,
-                ),
-              },
-            },
-          };
         });
       },
     }),
     {
-      name: "chat-storage",
+      name: "chat-ui-storage",
       partialize: (state) => ({
-        conversations: state.conversations,
+        activeConversationId: state.activeConversationId, // persist only active chat
       }),
     },
   ),
