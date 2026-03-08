@@ -12,6 +12,8 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "@tanstack/ai": "^0.6.1",
+    "@tanstack/ai-gemini": "^0.7.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",

@@ -51,7 +51,6 @@ export const MessageItem = ({
           isHighlighted && "bg-warning/30 ring-1 ring-warning",
         )}
       >
-        {/* Avatar + tên người gửi */}
         {!isOwn && isGroupBreak && (
           <>
             <div className="chat-image avatar">
@@ -98,7 +97,7 @@ export const MessageItem = ({
                     {replyTo.senderId.fullName}
                   </div>
                   <div className="opacity-60 truncate">
-                    {replyTo.imageUrl && "📷 "}
+                    {replyTo.imageUrl}
                     {replyTo.content || "Hình ảnh"}
                   </div>
                 </div>
@@ -114,7 +113,11 @@ export const MessageItem = ({
                 <p
                   className={cn(
                     "text-sm leading-relaxed break-words",
-                    imageUrl && "p-3 bg-base-300 rounded-lg lg:max-w-md",
+                    imageUrl &&
+                      cn(
+                        "p-3 rounded-lg lg:max-w-md mt-1",
+                        isOwn ? "chat-bubble-primary" : "chat-bubble-secondary",
+                      ),
                   )}
                 >
                   {content}

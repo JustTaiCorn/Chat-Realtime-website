@@ -13,6 +13,8 @@
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@tailwindcss/vite": "^4.1.10",
+    "@tanstack/ai": "^0.6.1",
+    "@tanstack/ai-react": "^0.6.2",
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-query-devtools": "^5.81.2",
     "axios": "^1.10.0",

@@ -69,7 +69,6 @@ export const ChatWindowBody = () => {
     }
   }, [messages]);
 
-  // Scroll to search result
   useEffect(() => {
     if (isSearchOpen && currentSearchIndex !== -1 && searchResults.length > 0) {
       const messageId = searchResults[currentSearchIndex]._id;

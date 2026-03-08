@@ -22,8 +22,6 @@ export const NewGroupChatModal = ({
     useCreateConversation();
   const { data: friendsData, isLoading: loadingFriends } = useGetFriends();
   const friends = friendsData || [];
-
-  // Filter friends based on search and exclude already invited
   const filteredFriends = friends.filter(
     (friend: any) =>
       friend.fullName.toLowerCase().includes(search.toLowerCase()) &&
@@ -53,10 +51,7 @@ export const NewGroupChatModal = ({
 
       await createConversation({
         type: "group",
-        memberIds: [
-          ...invitedUsers.map((u) => u._id),
-          // authUser?._id || "", // authUser is not defined in the original code, so it's commented out to avoid reference error.
-        ],
+        memberIds: [...invitedUsers.map((u) => u._id)],
         name: groupName,
       });
 
@@ -104,7 +99,6 @@ export const NewGroupChatModal = ({
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Group Name Input */}
           <div className="px-6 py-4 border-b border-base-300">
             <label className="text-sm font-semibold text-base-content/80 mb-2 block">
               Tên nhóm
@@ -119,7 +113,6 @@ export const NewGroupChatModal = ({
             />
           </div>
 
-          {/* Search Friends */}
           <div className="px-6 py-4 border-b border-base-300">
             <label className="text-sm font-semibold text-base-content/80 mb-2 block">
               Mời thành viên
@@ -135,7 +128,6 @@ export const NewGroupChatModal = ({
               />
             </div>
 
-            {/* Selected Users */}
             {invitedUsers.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {invitedUsers.map((user) => (
@@ -157,7 +149,6 @@ export const NewGroupChatModal = ({
             )}
           </div>
 
-          {/* Friends List */}
           <div className="px-6 py-4 max-h-60 overflow-y-auto">
             <h4 className="text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-3">
               {search ? "Kết quả tìm kiếm" : "Danh sách bạn bè"}
