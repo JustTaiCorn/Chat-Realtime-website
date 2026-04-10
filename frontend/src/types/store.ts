@@ -1,5 +1,5 @@
 import type { User } from "@/zustands/useAuthStore.ts";
-import type { Conversation, Message } from "./chat.ts";
+import type {  Message } from "./chat.ts";
 import type { Socket } from "socket.io-client";
 
 export interface ChatState {

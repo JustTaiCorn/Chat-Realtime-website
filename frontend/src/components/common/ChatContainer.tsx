@@ -25,7 +25,7 @@ export default function ChatContainer() {
       }
     };
     markSeen();
-  }, [markAsSeen, selectedConversation]);
+  }, [markAsSeen, selectedConversation,activeConversationId]);
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <ChatHeader chat={selectedConversation} />

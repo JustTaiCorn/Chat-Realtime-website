@@ -15,8 +15,6 @@ const privateClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
-
-// Request interceptor - add access token to header
 privateClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const accessToken = useAuthStore.getState().accessToken;
@@ -28,7 +26,6 @@ privateClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor - auto refresh on 403
 privateClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error) => {

@@ -14,7 +14,6 @@ const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; // 14 days
 const isProduction = process.env.NODE_ENV === "production";
 
-// Cookie options based on environment
 const getCookieOptions = () => ({
   httpOnly: true,
   secure: isProduction,
@@ -22,7 +21,6 @@ const getCookieOptions = () => ({
   maxAge: REFRESH_TOKEN_TTL,
 });
 
-// Helper function to generate tokens
 const generateAccessToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: ACCESS_TOKEN_TTL,
@@ -258,11 +256,7 @@ export const googleAuthCallback = async (req, res) => {
     const { user } = req;
 
     if (!user) {
-      return res.redirect(
-        `${
-          process.env.CLIENT_URL
-        }/login?error=auth_failed`,
-      );
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=auth_failed`);
     }
 
     const accessToken = generateAccessToken(user._id);
@@ -275,18 +269,10 @@ export const googleAuthCallback = async (req, res) => {
     });
 
     res.cookie("refreshToken", refreshTokenValue, getCookieOptions());
-    res.redirect(
-      `${
-        process.env.CLIENT_URL 
-      }/?token=${accessToken}`,
-    );
+    res.redirect(`${process.env.CLIENT_URL}/?token=${accessToken}`);
   } catch (error) {
     console.log("Error in googleAuth controller:", error.message);
-    res.redirect(
-      `${
-        process.env.CLIENT_URL 
-      }/login?error=server_error`,
-    );
+    res.redirect(`${process.env.CLIENT_URL}/login?error=server_error`);
   }
 };
 

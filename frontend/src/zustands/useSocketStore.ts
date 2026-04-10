@@ -31,15 +31,11 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     });
     newSocket.on("new-message", ({ message, conversation, unreadCounts }) => {
       const activeConversationId = useChatStore.getState().activeConversationId;
-
-      // Update message history cache
       queryClient.setQueryData(
         ["messages", message.conversationId],
         (oldData: any) => {
           if (!oldData) return oldData;
           const newPages = [...oldData.pages];
-
-          // Check if message already exists in the last page to prevent duplicates
           const lastPageIdx = newPages.length - 1;
           const messageExists = newPages[lastPageIdx].messages.some(
             (msg: Message) => msg._id === message._id,
@@ -57,7 +53,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         },
       );
 
-      // Update conversations cache
       queryClient.setQueryData(
         ["conversations"],
         (oldConversations: Conversation[] | undefined) => {
@@ -91,11 +86,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
           );
         },
       );
-
-      // If active, invalidate to trigger seen
-      if (activeConversationId === message.conversationId) {
-        // Normally we'd call markAsSeen API, let the component handle it or trigger refetch
-      }
     });
 
     newSocket.on("read-message", ({ conversation, lastMessage }) => {
