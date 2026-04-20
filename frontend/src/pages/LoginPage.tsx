@@ -24,7 +24,12 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<LoginFormData>();
+  } = useForm<LoginFormData>({
+    defaultValues: {
+      email: "test@gmail.com",
+      password: "123456",
+    },
+  });
   const onSubmit = handleSubmit(
     async (data: LoginFormData) => {
       try {
@@ -35,9 +40,9 @@ export default function LoginPage() {
     },
     (errors) => {
       Object.values(errors).map((error, index) =>
-        toast.error(error.message, { toastId: index })
+        toast.error(error.message, { toastId: index }),
       );
-    }
+    },
   );
   return (
     <div className="min-h-screen grid lg:grid-cols-2">

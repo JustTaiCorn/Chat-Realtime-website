@@ -33,6 +33,9 @@ privateClient.interceptors.response.use(
 
     // If 403 and not already retried, try to refresh
     if (error.response?.status === 403 && !originalRequest._retry) {
+      if (originalRequest.url?.includes("/auth/refresh")) {
+        return Promise.reject(error);
+      }
       originalRequest._retry = true;
 
       try {
